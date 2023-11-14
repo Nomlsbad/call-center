@@ -1,0 +1,4 @@
+BasedOnStyle: Microsoft
+BreakBeforeBraces: Allman
+AlignAfterOpenBracket: Align
+ColumnLimit: 120
