@@ -27,3 +27,5 @@ endif()
 set(SOURCES main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+target_link_libraries(${PROJECT_NAME} ${Log4Cpp_LIB})
