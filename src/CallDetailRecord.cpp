@@ -1,12 +1,9 @@
 #include <sstream>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "CallDetailRecord.h"
 
-CallDetailRecord::CallDetailRecord(String  phone)
-    : id(nextId), phone(std::move(phone))
-{
-    ++nextId;
-}
 
 CallDetailRecord::String CallDetailRecord::makeCallReport() const
 {
@@ -19,11 +16,11 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
     strStream << "CallEndingStatus:" << getEndingStatusAsString() << "|";
     strStream << "CallEndingDate:" << to_simple_string(endingDate) << "|";
 
-    if (hasEndingStatus(CallEndingStatus::OK))
+    if (endingStatus == CallEndingStatus::OK)
     {
-        strStream << "CallEndingDate:" << to_simple_string(answerDate) << "|";
+        strStream << "CallResponseDate:" << to_simple_string(responseDate) << "|";
         strStream << "OperatorId:" << operatorId << "|";
-        strStream << "CallEndingDate:" << duration.seconds() << "|";
+        strStream << "CallDuration:" << duration.seconds() << "|";
     }
     else
     {
@@ -44,5 +41,27 @@ CallDetailRecord::String CallDetailRecord::getEndingStatusAsString() const
     case CallEndingStatus::TIMEOUT: return "TIMEOUT";
     case CallEndingStatus::OVERLOAD: return "OVERLOAD";
     default: return "STATUS_NONE";
+    }
+}
+
+void CallDetailRecord::recordCallReceiption()
+{
+    receiptDate = boost::posix_time::microsec_clock::local_time();
+}
+
+void CallDetailRecord::recordCallResponse(IdType acceptedOperatotId)
+{
+    responseDate = boost::posix_time::microsec_clock::local_time();
+    operatorId = acceptedOperatotId;
+}
+
+void CallDetailRecord::recordCallEnding(CallEndingStatus status)
+{
+    endingDate = boost::posix_time::microsec_clock::local_time();
+    endingStatus = status;
+
+    if (endingStatus == CallEndingStatus::OK)
+    {
+        duration = endingDate - responseDate;
     }
 }

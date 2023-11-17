@@ -1,11 +1,6 @@
 #ifndef CALLDETAILRECORD_H
 #define CALLDETAILRECORD_H
 
-#include <string>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-namespace btime = boost::posix_time;
-
 
 enum class CallEndingStatus: uint8_t
 {
@@ -20,67 +15,54 @@ enum class CallEndingStatus: uint8_t
 class CallDetailRecord
 {
 public:
-
     using IdType = unsigned long long;
     using String = std::string;
-    using Date = btime::ptime;
-    using TimeDuration = btime::time_duration;
+    using Date = boost::posix_time::ptime;
+    using TimeDuration = boost::posix_time::time_duration;
 
 public:
-
-    explicit CallDetailRecord(String phone);
+    explicit CallDetailRecord(String phone): id(nextId++), phone(std::move(phone)) {};
 
     CallDetailRecord(const CallDetailRecord& cdr) = delete;
     CallDetailRecord(CallDetailRecord&& cdr) = default;
 
-    CallDetailRecord& operator= (const CallDetailRecord& cdr) = delete;
-    CallDetailRecord& operator= (CallDetailRecord&& cdr) = default;
+    CallDetailRecord& operator=(const CallDetailRecord& cdr) = delete;
+    CallDetailRecord& operator=(CallDetailRecord&& cdr) = default;
 
     ~CallDetailRecord() = default;
 
 public:
-
     [[nodiscard]] String makeCallReport() const;
 
     [[nodiscard]] IdType getId() const { return id; }
 
-    void setCallReceiptDate(const Date& date) { receiptDate = date; }
-
-    void setCallEndingDate(const Date& date) { endingDate = date; }
-
-    void setCallEndingStatus(CallEndingStatus status) { endingStatus = status; }
-
-    void setCallAnswerDate(const Date& date) { answerDate = date; }
-
-    void setOperator(IdType id) { operatorId = id; }
-
-    void setCallDuration(const TimeDuration& callDuration) { duration = callDuration; }
-
 private:
-
     [[nodiscard]] String getEndingStatusAsString() const;
-    [[nodiscard]] bool hasEndingStatus(CallEndingStatus status) const { return status == endingStatus; }
+
+public:
+    void recordCallReceiption();
+    void recordCallResponse(IdType acceptedOperatotId);
+    void recordCallEnding(CallEndingStatus status);
 
 private:
-
-    inline static IdType nextId{1};
-
-    IdType id{0};
+    IdType id = 0;
 
     String phone;
 
     Date receiptDate;
 
+    Date responseDate;
+
+    IdType operatorId = 0;
+
     Date endingDate;
 
     CallEndingStatus endingStatus{CallEndingStatus::NONE};
 
-    Date answerDate;
-
-    IdType operatorId{0};
-
     TimeDuration duration;
 
+private:
+    inline static IdType nextId = 1;
 };
 
 #endif //CALLDETAILRECORD_H
