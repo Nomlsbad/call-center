@@ -1,5 +1,5 @@
 
-if((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_compile_options(
             -Werror
 
@@ -20,11 +20,13 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clan
             -Wsign-conversion
             -Wsign-promo
     )
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     add_compile_options(/W4 /WX)
-endif()
+endif ()
 
-set(SOURCES main.cpp)
+set(SOURCES main.cpp
+        CallDetailRecord.cpp
+)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
