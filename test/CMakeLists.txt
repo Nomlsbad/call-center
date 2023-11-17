@@ -7,7 +7,12 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(
         ${PROJECT_NAME}_test
-        call_center_test.cpp
+        CallDetailRecordTest.cpp
+        ${CMAKE_SOURCE_DIR}/src/CallDetailRecord.cpp
+)
+
+target_include_directories(${PROJECT_NAME}_test PUBLIC
+        ${CMAKE_SOURCE_DIR}/src
 )
 
 target_link_libraries(
