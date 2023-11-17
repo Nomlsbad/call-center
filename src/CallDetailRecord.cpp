@@ -24,7 +24,7 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
     }
     else
     {
-        strStream << "CallEndingDate:|OperatorId:|CallEndingDate:|";
+        strStream << "CallResponseDate:|OperatorId:|CallDuration:|";
     }
 
     String result = strStream.str();
@@ -46,7 +46,6 @@ CallDetailRecord::String CallDetailRecord::getEndingStatusAsString() const
 void CallDetailRecord::recordCallReceiption()
 {
     receiptDate = boost::posix_time::microsec_clock::local_time();
-    std::cout << to_simple_string(receiptDate) << "\n";
 }
 
 void CallDetailRecord::recordCallResponse(IdType acceptedOperatotId)
