@@ -7,7 +7,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(${TEST_NAME}
         CallDetailRecordTest.cpp
-        ${APP_SOURCES}
 )
 
 target_include_directories(${TEST_NAME}
@@ -18,6 +17,7 @@ target_include_directories(${TEST_NAME}
 target_link_libraries(${TEST_NAME}
         GTest::gtest
         GTest::gtest_main
+        ${APP_NAME}
 )
 
 include(GoogleTest)

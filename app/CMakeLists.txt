@@ -19,7 +19,9 @@ add_compile_options(
         -Wsign-promo
 )
 
-add_executable(${APP_NAME} ${APP_SOURCES})
+add_executable(${APP_NAME} ${APP_SRC_PATH}/main.cpp ${APP_SOURCES})
+set_target_properties(${APP_NAME} PROPERTIES ENABLE_EXPORTS 1)
 
+target_sources(${APP_NAME} PUBLIC ${APP_SOURCES})
 target_link_libraries(${APP_NAME} ${Log4Cpp_LIB})
 target_include_directories(${APP_NAME} PUBLIC ${APP_INCLUDE_PATH})

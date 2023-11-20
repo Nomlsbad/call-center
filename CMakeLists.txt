@@ -21,6 +21,7 @@ set (APP_SRC_PATH  "${APP_PATH}/src" )
 set (APP_INCLUDE_PATH  "${APP_PATH}/include" )
 
 file (GLOB APP_SOURCES "${APP_SRC_PATH}/*.cpp")
+list(FILTER APP_SOURCES EXCLUDE REGEX "${APP_SRC_PATH}/*/main.cpp")
 message(STATUS ${APP_SOURCES} )
 
 add_subdirectory(app)

@@ -1,7 +1,6 @@
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #include <gtest/gtest.h>
 
-/*
 #include "CallDetailRecord.h"
 
 struct StringSection
@@ -128,10 +127,4 @@ TEST(CallDetailRecord, recordCalls)
     EXPECT_NE(duration, "");
     EXPECT_NO_THROW(boost::posix_time::duration_from_string(duration));
 
-}
-*/
-
-TEST(TestExample, Example1)
-{
-    EXPECT_EQ(1, 1);
 }
