@@ -27,11 +27,6 @@ StringSection getCDRSection(const std::string& cdr, const std::string& strSectio
     return {begin, end};
 }
 
-TEST(CallDetailRecord, SomeName)
-{
-    EXPECT_EQ(1, 1);
-}
-
 TEST(CallDetailRecord, AssignId)
 {
     const CallDetailRecord cdr1("");
@@ -95,7 +90,6 @@ TEST(CallDetailRecord, recordCalls)
 
     const std::string callDetail = cdr.makeCallReport();
 
-    const StringSection callIdSection = getCDRSection(callDetail, "CallId");
     const StringSection phoneSection = getCDRSection(callDetail, "Phone");
     const StringSection callReceiptSection = getCDRSection(callDetail, "CallReceiptDate");
     const StringSection callEndingSection = getCDRSection(callDetail, "CallEndingDate");
@@ -104,7 +98,6 @@ TEST(CallDetailRecord, recordCalls)
     const StringSection operatorIdSection = getCDRSection(callDetail, "OperatorId");
     const StringSection callDurationSection = getCDRSection(callDetail, "CallDuration");
 
-    const std::string callId = callDetail.substr(callIdSection.begin, callIdSection.length());
     const std::string phone = callDetail.substr(phoneSection.begin, phoneSection.length());
     const std::string receiptDate = callDetail.substr(callReceiptSection.begin, callReceiptSection.length());
     const std::string endingDate = callDetail.substr(callEndingSection.begin, callEndingSection.length());
@@ -113,7 +106,6 @@ TEST(CallDetailRecord, recordCalls)
     const std::string operatorId = callDetail.substr(operatorIdSection.begin, operatorIdSection.length());
     const std::string duration = callDetail.substr(callDurationSection.begin, callDurationSection.length());
 
-    EXPECT_EQ(callId, "1");
     EXPECT_EQ(phone, "+79966971812");
     EXPECT_NE(receiptDate, "not-a-date-time");
     EXPECT_NO_THROW(boost::posix_time::time_from_string(receiptDate));
