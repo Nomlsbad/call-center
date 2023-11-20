@@ -5,20 +5,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(
-        ${PROJECT_NAME}_test
+add_executable(${TEST_NAME}
         CallDetailRecordTest.cpp
-        ${CMAKE_SOURCE_DIR}/src/CallDetailRecord.cpp
 )
 
-target_include_directories(${PROJECT_NAME}_test PUBLIC
-        ${CMAKE_SOURCE_DIR}/src
+target_include_directories(${TEST_NAME}
+        PUBLIC
+        ${APP_INCLUDE_PATH}
 )
 
-target_link_libraries(
-        ${PROJECT_NAME}_test
+target_link_libraries(${TEST_NAME}
+        GTest::gtest
         GTest::gtest_main
+        ${APP_NAME}
 )
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_test)
+gtest_discover_tests(${TEST_NAME})

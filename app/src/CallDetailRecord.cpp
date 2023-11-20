@@ -4,7 +4,6 @@
 
 #include "CallDetailRecord.h"
 
-
 CallDetailRecord::String CallDetailRecord::makeCallReport() const
 {
     std::stringstream strStream;
