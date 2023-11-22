@@ -2,9 +2,11 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "CallDetailRecord.h"
+#include "CallDetail.h"
 
-std::string CallDetailRecord::makeCallReport() const
+IdType CallDetail::nextId = 1;
+
+std::string CallDetail::toString() const
 {
     std::stringstream strStream;
 
@@ -30,7 +32,7 @@ std::string CallDetailRecord::makeCallReport() const
     return result;
 }
 
-std::string CallDetailRecord::getEndingStatusAsString() const
+std::string CallDetail::getEndingStatusAsString() const
 {
     switch (endingStatus)
     {
@@ -41,18 +43,19 @@ std::string CallDetailRecord::getEndingStatusAsString() const
     }
 }
 
-void CallDetailRecord::recordCallReceiption()
+void CallDetail::recordReceiption()
 {
+    id = nextId++;
     receiptDate = boost::posix_time::microsec_clock::local_time();
 }
 
-void CallDetailRecord::recordCallResponse(IdType acceptedOperatotId)
+void CallDetail::recordResponse(IdType acceptedOperatotId)
 {
     responseDate = boost::posix_time::microsec_clock::local_time();
     operatorId = acceptedOperatotId;
 }
 
-void CallDetailRecord::recordCallEnding(CallEndingStatus status)
+void CallDetail::recordEnding(CallEndingStatus status)
 {
     endingDate = boost::posix_time::microsec_clock::local_time();
     endingStatus = status;
