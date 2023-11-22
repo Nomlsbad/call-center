@@ -1,7 +1,7 @@
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #include <gtest/gtest.h>
 
-#include "CallDetailRecord.h"
+#include "CallDetail.h"
 
 struct StringSection
 {
@@ -27,48 +27,14 @@ StringSection getCDRSection(const std::string& cdr, const std::string& strSectio
     return {begin, end};
 }
 
-TEST(CallDetailRecord, AssignId)
+TEST(CallDetailRecord, CallDetailReportFormat)
 {
-    const CallDetailRecord cdr1("");
-    const CallDetailRecord cdr2("");
-    const CallDetailRecord cdr3("");
+    CallDetail callDetail("");
 
-    for (int i = 0; i < 30; ++i)
-    {
-        CallDetailRecord tempCdr("");
-    }
-    CallDetailRecord lastCdr("");
-
-    EXPECT_EQ(cdr1.getId(), 1);
-    EXPECT_EQ(cdr2.getId(), 2);
-    EXPECT_EQ(cdr3.getId(), 3);
-    EXPECT_EQ(lastCdr.getId(), 34);
-}
-
-TEST(CallDetailRecord, emptyCDRFormat)
-{
-    const CallDetailRecord emptyCDR("");
-
-    std::string emptyCallDetail = emptyCDR.makeCallReport();
-
-    EXPECT_NE(emptyCallDetail.find("CallId:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("Phone:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("CallReceiptDate:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("CallEndingDate:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("CallEndingStatus:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("CallResponseDate:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("OperatorId:"), std::string::npos);
-    EXPECT_NE(emptyCallDetail.find("CallDuration:"), std::string::npos);
-}
-
-TEST(CallDetailRecord, fillCDRFormat)
-{
-    CallDetailRecord fillCDR("");
-
-    fillCDR.recordCallReceiption();
-    fillCDR.recordCallResponse(13);
-    fillCDR.recordCallEnding(CallEndingStatus::OK);
-    std::string emptyCallDetail = fillCDR.makeCallReport();
+    callDetail.recordReceiption();
+    callDetail.recordResponse(13);
+    callDetail.recordEnding(CallEndingStatus::OK);
+    std::string emptyCallDetail = callDetail.toString();
 
     EXPECT_NE(emptyCallDetail.find("CallId:"), std::string::npos);
     EXPECT_NE(emptyCallDetail.find("Phone:"), std::string::npos);
@@ -82,29 +48,29 @@ TEST(CallDetailRecord, fillCDRFormat)
 
 TEST(CallDetailRecord, recordCalls)
 {
-    CallDetailRecord cdr("+79966971812");
+    CallDetail callDetail("+79966971812");
 
-    cdr.recordCallReceiption();
-    cdr.recordCallResponse(13);
-    cdr.recordCallEnding(CallEndingStatus::OK);
+    callDetail.recordReceiption();
+    callDetail.recordResponse(13);
+    callDetail.recordEnding(CallEndingStatus::OK);
 
-    const std::string callDetail = cdr.makeCallReport();
+    const std::string callReport = callDetail.toString();
 
-    const StringSection phoneSection = getCDRSection(callDetail, "Phone");
-    const StringSection callReceiptSection = getCDRSection(callDetail, "CallReceiptDate");
-    const StringSection callEndingSection = getCDRSection(callDetail, "CallEndingDate");
-    const StringSection callEndingStatusSection = getCDRSection(callDetail, "CallEndingStatus");
-    const StringSection callResponseSection = getCDRSection(callDetail, "CallResponseDate");
-    const StringSection operatorIdSection = getCDRSection(callDetail, "OperatorId");
-    const StringSection callDurationSection = getCDRSection(callDetail, "CallDuration");
+    const StringSection phoneSection = getCDRSection(callReport, "Phone");
+    const StringSection callReceiptSection = getCDRSection(callReport, "CallReceiptDate");
+    const StringSection callEndingSection = getCDRSection(callReport, "CallEndingDate");
+    const StringSection callEndingStatusSection = getCDRSection(callReport, "CallEndingStatus");
+    const StringSection callResponseSection = getCDRSection(callReport, "CallResponseDate");
+    const StringSection operatorIdSection = getCDRSection(callReport, "OperatorId");
+    const StringSection callDurationSection = getCDRSection(callReport, "CallDuration");
 
-    const std::string phone = callDetail.substr(phoneSection.begin, phoneSection.length());
-    const std::string receiptDate = callDetail.substr(callReceiptSection.begin, callReceiptSection.length());
-    const std::string endingDate = callDetail.substr(callEndingSection.begin, callEndingSection.length());
-    const std::string endingStatus = callDetail.substr(callEndingStatusSection.begin, callEndingStatusSection.length());
-    const std::string responseDate = callDetail.substr(callResponseSection.begin, callResponseSection.length());
-    const std::string operatorId = callDetail.substr(operatorIdSection.begin, operatorIdSection.length());
-    const std::string duration = callDetail.substr(callDurationSection.begin, callDurationSection.length());
+    const std::string phone = callReport.substr(phoneSection.begin, phoneSection.length());
+    const std::string receiptDate = callReport.substr(callReceiptSection.begin, callReceiptSection.length());
+    const std::string endingDate = callReport.substr(callEndingSection.begin, callEndingSection.length());
+    const std::string endingStatus = callReport.substr(callEndingStatusSection.begin, callEndingStatusSection.length());
+    const std::string responseDate = callReport.substr(callResponseSection.begin, callResponseSection.length());
+    const std::string operatorId = callReport.substr(operatorIdSection.begin, operatorIdSection.length());
+    const std::string duration = callReport.substr(callDurationSection.begin, callDurationSection.length());
 
     EXPECT_EQ(phone, "+79966971812");
     EXPECT_NE(receiptDate, "not-a-date-time");

@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "CallDetailRecord.h"
+#include "CallDetail.h"
 #include "Operator.h"
 
 class CallCenter
@@ -26,7 +26,7 @@ public:
 
 private:
 
-    void makeRecord(const CallDetailRecord& callDetail) const;
+    void makeRecord(const CallDetail& callDetail) const;
 
     [[nodiscard]] bool isQueueFull() const;
 
@@ -36,9 +36,9 @@ private:
 
     size_t queueSize = 0;
 
-    std::queue<std::unique_ptr<CallDetailRecord>> calls;
+    std::queue<std::unique_ptr<CallDetail>> calls;
 
-    std::vector<std::unique_ptr<CallDetailRecord>> activeCalls;
+    std::vector<std::unique_ptr<CallDetail>> activeCalls;
 
     std::queue<Operator*> freeOperators;
 

@@ -9,8 +9,8 @@ CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
 
 void CallCenter::registerCall(const std::string& phone)
 {
-    auto callDetail = std::make_unique<CallDetailRecord>(phone);
-    callDetail->recordCallReceiption();
+    auto callDetail = std::make_unique<CallDetail>(phone);
+    callDetail->recordReceiption();
 
     if (!isQueueFull())
     {
@@ -18,7 +18,7 @@ void CallCenter::registerCall(const std::string& phone)
     }
     else
     {
-        callDetail->recordCallEnding(CallEndingStatus::OVERLOAD);
+        callDetail->recordEnding(CallEndingStatus::OVERLOAD);
         makeRecord(*callDetail);
     }
 }
@@ -29,17 +29,17 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus)
     const auto callDetailIter = std::ranges::find_if(activeCalls, isIdEquals);
     const auto callDetail = std::move(*callDetailIter);
 
-    callDetail->recordCallEnding(callEndingStatus);
+    callDetail->recordEnding(callEndingStatus);
     makeRecord(*callDetail);
 
     activeCalls.erase(callDetailIter);
 }
 
-void CallCenter::makeRecord(const CallDetailRecord& callDetail) const
+void CallCenter::makeRecord(const CallDetail& callDetail) const
 {
     std::ofstream out;
     out.open(journalPath);
-    out << callDetail.makeCallReport();
+    out << callDetail.toString();
     out.close();
 }
 

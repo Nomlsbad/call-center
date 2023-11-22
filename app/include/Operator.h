@@ -11,7 +11,7 @@ public:
 public:
     Operator(): id(nextId++) {};
 
-    void acceptCall(class CallDetailRecord& callDetail);
+    void acceptCall(class CallDetail& callDetail);
 
 private:
 
