@@ -22,7 +22,7 @@ public:
 public:
 
     void registerCall(const std::string& phone);
-    void endCall(CallDetailRecord::IdType callId, CallEndingStatus callEndingStatus);
+    void endCall(IdType callId, CallEndingStatus callEndingStatus);
 
 private:
 

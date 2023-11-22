@@ -1,9 +1,7 @@
 #ifndef CALLDETAILRECORD_H
 #define CALLDETAILRECORD_H
 
-
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-
+#include "Types.h"
 
 enum class CallEndingStatus: uint8_t
 {
@@ -18,13 +16,7 @@ enum class CallEndingStatus: uint8_t
 class CallDetailRecord
 {
 public:
-    using IdType = unsigned long long;
-    using String = std::string;
-    using Date = boost::posix_time::ptime;
-    using TimeDuration = boost::posix_time::time_duration;
-
-public:
-    explicit CallDetailRecord(String phone): id(nextId++), phone(std::move(phone)) {};
+    explicit CallDetailRecord(std::string phone): id(nextId++), phone(std::move(phone)) {};
 
     CallDetailRecord(const CallDetailRecord& cdr) = delete;
     CallDetailRecord(CallDetailRecord&& cdr) = default;
@@ -35,12 +27,12 @@ public:
     ~CallDetailRecord() = default;
 
 public:
-    [[nodiscard]] String makeCallReport() const;
+    [[nodiscard]] std::string makeCallReport() const;
 
     [[nodiscard]] IdType getId() const { return id; }
 
 private:
-    [[nodiscard]] String getEndingStatusAsString() const;
+    [[nodiscard]] std::string getEndingStatusAsString() const;
 
 public:
     void recordCallReceiption();
@@ -50,7 +42,7 @@ public:
 private:
     IdType id = 0;
 
-    String phone;
+    std::string phone;
 
     Date receiptDate;
 

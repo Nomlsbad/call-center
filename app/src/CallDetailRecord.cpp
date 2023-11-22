@@ -4,7 +4,7 @@
 
 #include "CallDetailRecord.h"
 
-CallDetailRecord::String CallDetailRecord::makeCallReport() const
+std::string CallDetailRecord::makeCallReport() const
 {
     std::stringstream strStream;
 
@@ -25,12 +25,12 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
         strStream << "CallResponseDate:|OperatorId:|CallDuration:|";
     }
 
-    String result = strStream.str();
+    std::string result = strStream.str();
 
     return result;
 }
 
-CallDetailRecord::String CallDetailRecord::getEndingStatusAsString() const
+std::string CallDetailRecord::getEndingStatusAsString() const
 {
     switch (endingStatus)
     {

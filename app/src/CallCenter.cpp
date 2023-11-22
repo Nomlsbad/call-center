@@ -23,7 +23,7 @@ void CallCenter::registerCall(const std::string& phone)
     }
 }
 
-void CallCenter::endCall(CallDetailRecord::IdType callId, CallEndingStatus callEndingStatus)
+void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus)
 {
     auto isIdEquals = [id = callId](const auto& callDetail) { return callDetail->getId() == id; };
     const auto callDetailIter = std::ranges::find_if(activeCalls, isIdEquals);
