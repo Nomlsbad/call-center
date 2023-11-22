@@ -13,7 +13,6 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
     strStream << "CallReceiptDate:" << to_simple_string(receiptDate) << "|";
     strStream << "CallEndingDate:" << to_simple_string(endingDate) << "|";
     strStream << "CallEndingStatus:" << getEndingStatusAsString() << "|";
-    strStream << "CallEndingDate:" << to_simple_string(endingDate) << "|";
 
     if (endingStatus == CallEndingStatus::OK)
     {

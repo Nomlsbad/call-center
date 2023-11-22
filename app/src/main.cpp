@@ -1,8 +1,11 @@
 #include <iostream>
 
+#include "CallCenter.h"
+
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+    CallCenter callCenter(0, 10);
+    callCenter.registerCall("+71234567890");
 
     return 0;
 }
