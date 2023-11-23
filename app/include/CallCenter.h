@@ -1,9 +1,8 @@
 #ifndef CALLCENTER_H
 #define CALLCENTER_H
 
-#include <queue>
+
 #include <vector>
-#include <memory>
 
 #include "CallDetail.h"
 #include "Operator.h"
@@ -30,18 +29,18 @@ private:
 
     [[nodiscard]] bool isQueueFull() const;
 
+    std::vector<CallDetail>& getCDHolderByEndingStatus(CallEndingStatus callEndingStatus);
+
 private:
 
     std::string journalPath = "../../resurses/journal.txt";
 
     size_t queueSize = 0;
 
-    std::queue<std::unique_ptr<CallDetail>> calls;
+    std::vector<CallDetail> awaitingCalls;
+    std::vector<CallDetail> activeCalls;
 
-    std::vector<std::unique_ptr<CallDetail>> activeCalls;
-
-    std::queue<Operator*> freeOperators;
-
+    std::vector<Operator*> freeOperators;
     std::vector<Operator> operators;
 };
 
