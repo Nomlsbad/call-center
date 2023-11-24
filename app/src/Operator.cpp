@@ -6,7 +6,7 @@ Operator::IdType Operator::nextId = 1;
 void Operator::acceptCall(CallDetail& callDetail)
 {
     isBusy = true;
-    callDetail.recordResponse(id);
+    callDetail.recordResponse(id, boost::posix_time::microsec_clock::local_time());
 
     callThread = std::thread(&Operator::talk, this);
     callThread.detach();
