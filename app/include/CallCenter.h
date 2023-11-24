@@ -1,11 +1,12 @@
 #ifndef CALLCENTER_H
 #define CALLCENTER_H
 
-
-#include <vector>
+#include <deque>
+#include <map>
 
 #include "CallDetail.h"
 #include "Operator.h"
+
 
 class CallCenter
 {
@@ -25,11 +26,9 @@ public:
 
 private:
 
-    void makeRecord(const CallDetail& callDetail) const;
-
     [[nodiscard]] bool isQueueFull() const;
 
-    std::vector<CallDetail>& getCDHolderByEndingStatus(CallEndingStatus callEndingStatus);
+    void makeCallDetailRecord(const CallDetail& callDetail) const;
 
 private:
 
@@ -37,10 +36,10 @@ private:
 
     size_t queueSize = 0;
 
-    std::vector<CallDetail> awaitingCalls;
-    std::vector<CallDetail> activeCalls;
+    std::deque<IdType> awaitingCalls;
+    std::map<IdType, CallDetail> calls;
 
-    std::vector<Operator*> freeOperators;
+    std::deque<IdType> freeOperators;
     std::vector<Operator> operators;
 };
 

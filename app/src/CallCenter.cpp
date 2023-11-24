@@ -12,32 +12,29 @@ void CallCenter::registerCall(const std::string& phone, Date date)
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
 
-    if (!isQueueFull())
-    {
-        awaitingCalls.push_back(std::move(callDetail));
-    }
-    else
+    if (isQueueFull())
     {
         callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
-        makeRecord(callDetail);
+        makeCallDetailRecord(callDetail);
+        return;
     }
+
+    awaitingCalls.push_back(callDetail.getId());
+    calls.emplace(callDetail.getId(), std::move(callDetail));
 }
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
-    auto isIdEquals = [id = callId](const auto& callDetail) { return callDetail.getId() == id; };
+    CallDetail& callDetail = calls[callId];
 
-    std::vector<CallDetail>& callHolder = getCDHolderByEndingStatus(callEndingStatus);
-    const auto callDetail = std::ranges::find_if(callHolder, isIdEquals);
-    if (callDetail == callHolder.cend()) return;
+    callDetail.recordEnding(callEndingStatus, date);
+    makeCallDetailRecord(callDetail);
 
-    callHolder.erase(callDetail);
-
-    callDetail->recordEnding(callEndingStatus, date);
-    makeRecord(*callDetail);
+    freeOperators.push_back(callDetail.getOperatorId());
+    calls.erase(callId);
 }
 
-void CallCenter::makeRecord(const CallDetail& callDetail) const
+void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
 {
     std::ofstream out;
     out.open(journalPath);
@@ -48,14 +45,4 @@ void CallCenter::makeRecord(const CallDetail& callDetail) const
 bool CallCenter::isQueueFull() const
 {
     return awaitingCalls.size() == queueSize;
-}
-
-std::vector<CallDetail>& CallCenter::getCDHolderByEndingStatus(CallEndingStatus callEndingStatus)
-{
-    switch (callEndingStatus)
-    {
-    case CallEndingStatus::OK: return activeCalls;
-    case CallEndingStatus::TIMEOUT: return awaitingCalls;
-    default: throw;
-    }
 }

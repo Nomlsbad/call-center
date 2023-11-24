@@ -30,6 +30,7 @@ public:
     [[nodiscard]] std::string toString() const;
 
     [[nodiscard]] IdType getId() const { return id; }
+    [[nodiscard]] IdType getOperatorId() const { return operatorId; }
 
 private:
     [[nodiscard]] std::string getEndingStatusAsString() const;
