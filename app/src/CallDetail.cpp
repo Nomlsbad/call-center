@@ -2,9 +2,11 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "CallDetailRecord.h"
+#include "CallDetail.h"
 
-CallDetailRecord::String CallDetailRecord::makeCallReport() const
+IdType CallDetail::nextId = 1;
+
+std::string CallDetail::toString() const
 {
     std::stringstream strStream;
 
@@ -13,7 +15,6 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
     strStream << "CallReceiptDate:" << to_simple_string(receiptDate) << "|";
     strStream << "CallEndingDate:" << to_simple_string(endingDate) << "|";
     strStream << "CallEndingStatus:" << getEndingStatusAsString() << "|";
-    strStream << "CallEndingDate:" << to_simple_string(endingDate) << "|";
 
     if (endingStatus == CallEndingStatus::OK)
     {
@@ -26,12 +27,12 @@ CallDetailRecord::String CallDetailRecord::makeCallReport() const
         strStream << "CallResponseDate:|OperatorId:|CallDuration:|";
     }
 
-    String result = strStream.str();
+    std::string result = strStream.str();
 
     return result;
 }
 
-CallDetailRecord::String CallDetailRecord::getEndingStatusAsString() const
+std::string CallDetail::getEndingStatusAsString() const
 {
     switch (endingStatus)
     {
@@ -42,20 +43,21 @@ CallDetailRecord::String CallDetailRecord::getEndingStatusAsString() const
     }
 }
 
-void CallDetailRecord::recordCallReceiption()
+void CallDetail::recordReceiption(Date date)
 {
-    receiptDate = boost::posix_time::microsec_clock::local_time();
+    id = nextId++;
+    receiptDate = date;
 }
 
-void CallDetailRecord::recordCallResponse(IdType acceptedOperatotId)
+void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 {
-    responseDate = boost::posix_time::microsec_clock::local_time();
+    responseDate = date;
     operatorId = acceptedOperatotId;
 }
 
-void CallDetailRecord::recordCallEnding(CallEndingStatus status)
+void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
-    endingDate = boost::posix_time::microsec_clock::local_time();
+    endingDate = date;
     endingStatus = status;
 
     if (endingStatus == CallEndingStatus::OK)

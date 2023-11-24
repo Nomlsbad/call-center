@@ -1,8 +1,11 @@
 #include <iostream>
 
+#include "CallCenter.h"
+
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+    CallCenter callCenter(0, 10);
+    callCenter.registerCall("+71234567890", boost::posix_time::microsec_clock::local_time());
 
     return 0;
 }
