@@ -20,8 +20,8 @@ public:
 
 public:
 
-    void registerCall(const std::string& phone);
-    void endCall(IdType callId, CallEndingStatus callEndingStatus);
+    void registerCall(const std::string& phone, Date date);
+    void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
 private:
 

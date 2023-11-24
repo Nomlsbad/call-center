@@ -7,10 +7,10 @@ CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
     : queueSize(queueSize), operators(operatorsSize)
 {}
 
-void CallCenter::registerCall(const std::string& phone)
+void CallCenter::registerCall(const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
-    callDetail.recordReceiption();
+    callDetail.recordReceiption(date);
 
     if (!isQueueFull())
     {
@@ -18,21 +18,22 @@ void CallCenter::registerCall(const std::string& phone)
     }
     else
     {
-        callDetail.recordEnding(CallEndingStatus::OVERLOAD);
+        callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
         makeRecord(callDetail);
     }
 }
 
-void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus)
+void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
     auto isIdEquals = [id = callId](const auto& callDetail) { return callDetail.getId() == id; };
 
     std::vector<CallDetail>& callHolder = getCDHolderByEndingStatus(callEndingStatus);
     const auto callDetail = std::ranges::find_if(callHolder, isIdEquals);
-    if (callDetail == callHolder.end()) return;
+    if (callDetail == callHolder.cend()) return;
 
-    callDetail->recordEnding(callEndingStatus);
     callHolder.erase(callDetail);
+
+    callDetail->recordEnding(callEndingStatus, date);
     makeRecord(*callDetail);
 }
 

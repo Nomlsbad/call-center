@@ -35,9 +35,9 @@ private:
     [[nodiscard]] std::string getEndingStatusAsString() const;
 
 public:
-    void recordReceiption();
-    void recordResponse(IdType acceptedOperatotId);
-    void recordEnding(CallEndingStatus status);
+    void recordReceiption(Date date);
+    void recordResponse(IdType acceptedOperatotId, Date date);
+    void recordEnding(CallEndingStatus status, Date date);
 
 private:
     IdType id = 0;
