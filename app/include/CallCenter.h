@@ -28,6 +28,8 @@ private:
 
     [[nodiscard]] bool isQueueFull() const;
 
+    void tryToAcceptCall();
+
     void makeCallDetailRecord(const CallDetail& callDetail) const;
 
 private:
@@ -40,7 +42,7 @@ private:
     std::map<IdType, CallDetail> calls;
 
     std::deque<IdType> freeOperators;
-    std::vector<Operator> operators;
+    std::map<IdType, Operator> operators;
 };
 
 
