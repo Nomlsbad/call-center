@@ -3,28 +3,33 @@
 
 #include <thread>
 
+#include "Types.h"
+
 class Operator
 {
 public:
-    using IdType = unsigned long long;
-
-public:
     Operator(): id(nextId++) {};
+
+    [[nodiscard]] IdType getId() const { return id; }
+
+    [[nodiscard]] bool isConnected() const { return callCenter != nullptr; }
+
+    void connectTo(class CallCenter* center) { callCenter = center; }
 
     void acceptCall(class CallDetail& callDetail);
 
 private:
 
-    void talk();
+    void talk(IdType callId) const;
 
 private:
     IdType id = 0;
 
-    bool isBusy = false;
+    static IdType nextId;
+
+    class CallCenter* callCenter = nullptr;
 
     std::thread callThread;
-
-    static IdType nextId;
 };
 
 

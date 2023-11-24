@@ -1,20 +1,21 @@
-#include "Operator.h"
-#include "CallDetail.h"
+#include "CallCenter.h"
 
-Operator::IdType Operator::nextId = 1;
+IdType Operator::nextId = 1;
 
 void Operator::acceptCall(CallDetail& callDetail)
 {
-    isBusy = true;
+    if (!isConnected()) throw;
+
     callDetail.recordResponse(id, boost::posix_time::microsec_clock::local_time());
 
-    callThread = std::thread(&Operator::talk, this);
+    callThread = std::thread(&Operator::talk, this, callDetail.getId());
     callThread.detach();
 }
 
-void Operator::talk()
+void Operator::talk(IdType callId) const
 {
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    if (!isConnected()) return;
 
-    isBusy = false;
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    callCenter->endCall(callId, CallEndingStatus::OK, boost::posix_time::microsec_clock::local_time());
 }
