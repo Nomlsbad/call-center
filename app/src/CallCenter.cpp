@@ -4,8 +4,19 @@
 
 
 CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
-    : queueSize(queueSize)
-{}
+    : queueSize(queueSize), freeOperators(operatorsSize)
+{
+    for(size_t i = 0; i < operatorsSize; ++i)
+    {
+        Operator newOperator;
+        const IdType operatorId = newOperator.getId();
+
+        newOperator.connectTo(this);
+
+        freeOperators[i] = operatorId;
+        operators.emplace(operatorId, std::move(newOperator));
+    }
+}
 
 void CallCenter::registerCall(const std::string& phone, Date date)
 {
@@ -26,6 +37,9 @@ void CallCenter::registerCall(const std::string& phone, Date date)
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
+    std::lock_guard endCallLock(endCallMutex);
+
+    if (!calls.contains(callId)) return;
     CallDetail& callDetail = calls.at(callId);
 
     callDetail.recordEnding(callEndingStatus, date);
@@ -55,8 +69,8 @@ void CallCenter::tryToAcceptCall()
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
 {
     std::ofstream out;
-    out.open(journalPath);
-    out << callDetail.toString();
+    out.open(journalPath, std::ios::app);
+    out << callDetail.toString() << "\n";
     out.close();
 }
 

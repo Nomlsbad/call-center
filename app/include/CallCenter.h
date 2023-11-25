@@ -24,9 +24,8 @@ public:
     void registerCall(const std::string& phone, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
-private:
-
     [[nodiscard]] bool isQueueFull() const;
+private:
 
     void tryToAcceptCall();
 
@@ -43,6 +42,8 @@ private:
 
     std::deque<IdType> freeOperators;
     std::map<IdType, Operator> operators;
+
+    mutable std::mutex endCallMutex;
 };
 
 
