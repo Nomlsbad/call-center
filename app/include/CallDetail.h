@@ -3,7 +3,7 @@
 
 #include "Types.h"
 
-enum class CallEndingStatus: uint8_t
+enum class CallEndingStatus : uint8_t
 {
     OK = 0,
     TIMEOUT = 1,
@@ -12,11 +12,11 @@ enum class CallEndingStatus: uint8_t
     NONE = 3
 };
 
-
 class CallDetail
 {
 public:
-    explicit CallDetail(std::string phone): phone(std::move(phone)) {};
+
+    explicit CallDetail(std::string phone);
 
     CallDetail(const CallDetail& cdr) = delete;
     CallDetail(CallDetail&& cdr) = default;
@@ -27,20 +27,36 @@ public:
     ~CallDetail() = default;
 
 public:
-    [[nodiscard]] std::string toString() const;
 
-    [[nodiscard]] IdType getId() const { return id; }
-    [[nodiscard]] IdType getOperatorId() const { return operatorId; }
-
-private:
-    [[nodiscard]] std::string getEndingStatusAsString() const;
-
-public:
     void recordReceiption(Date date);
     void recordResponse(IdType acceptedOperatotId, Date date);
     void recordEnding(CallEndingStatus status, Date date);
 
+    [[nodiscard]] std::string toString() const;
+
+    [[nodiscard]] IdType getId() const;
+    [[nodiscard]] IdType getOperatorId() const;
+
 private:
+
+    [[nodiscard]] std::string getEndingStatusAsString() const;
+
+private:
+
+    static IdType nextId;
+
+    enum RecordingStatus
+    {
+        CREATED = 0,
+        ACCEPTED = 1,
+        RESPONDED = 2,
+        ENDED = 3
+    };
+
+    RecordingStatus recordingStatus = CREATED;
+
+private:
+
     IdType id = 0;
 
     std::string phone;
@@ -53,12 +69,9 @@ private:
 
     Date endingDate;
 
-    CallEndingStatus endingStatus{CallEndingStatus::NONE};
+    CallEndingStatus endingStatus = CallEndingStatus::NONE;
 
     TimeDuration duration;
-
-private:
-    static IdType nextId;
 };
 
-#endif //CALLDETAIL_H
+#endif // CALLDETAIL_H
