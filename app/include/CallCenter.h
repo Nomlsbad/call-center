@@ -7,25 +7,26 @@
 #include "CallDetail.h"
 #include "Operator.h"
 
-
 class CallCenter
 {
 public:
+
     CallCenter(size_t queueSize, size_t operatorsSize);
 
     CallCenter(const CallCenter& callCenter) = delete;
     CallCenter(CallCenter&& callCenter) = delete;
 
-    CallCenter& operator= (const CallCenter& callCenter) = delete;
-    CallCenter& operator= (CallCenter&& callCenter) = delete;
+    CallCenter& operator=(const CallCenter& callCenter) = delete;
+    CallCenter& operator=(CallCenter&& callCenter) = delete;
 
 public:
 
     void registerCall(const std::string& phone, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
-    [[nodiscard]] bool isQueueFull() const;
 private:
+
+    [[nodiscard]] bool isQueueFull() const;
 
     void tryToAcceptCall();
 
@@ -40,11 +41,10 @@ private:
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;
 
-    std::deque<IdType> freeOperators;
+    std::deque<IdType> availableOperators;
     std::map<IdType, Operator> operators;
 
-    mutable std::mutex endCallMutex;
+    mutable std::mutex callCenterMutex;
 };
 
-
-#endif //CALLCENTER_H
+#endif // CALLCENTER_H
