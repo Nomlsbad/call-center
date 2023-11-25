@@ -2,48 +2,80 @@
 
 #include "CallCenter.h"
 
-
 CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
-    : queueSize(queueSize), activeCalls(0), operators(operatorsSize)
-{}
-
-void CallCenter::registerCall(const std::string& phone)
+    : queueSize(queueSize),
+      availableOperators(operatorsSize)
 {
-    auto callDetail = std::make_unique<CallDetail>(phone);
-    callDetail->recordReceiption();
+    for (size_t i = 0; i < operatorsSize; ++i)
+    {
+        Operator newOperator;
+        const IdType operatorId = newOperator.getId();
 
-    if (!isQueueFull())
-    {
-        calls.push(std::move(callDetail));
-    }
-    else
-    {
-        callDetail->recordEnding(CallEndingStatus::OVERLOAD);
-        makeRecord(*callDetail);
+        newOperator.connectTo(this);
+
+        availableOperators[i] = operatorId;
+        operators.emplace(operatorId, std::move(newOperator));
     }
 }
 
-void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus)
+void CallCenter::registerCall(const std::string& phone, Date date)
 {
-    auto isIdEquals = [id = callId](const auto& callDetail) { return callDetail->getId() == id; };
-    const auto callDetailIter = std::ranges::find_if(activeCalls, isIdEquals);
-    const auto callDetail = std::move(*callDetailIter);
+    CallDetail callDetail(phone);
+    callDetail.recordReceiption(date);
+    std::lock_guard callCenterLock(callCenterMutex);
 
-    callDetail->recordEnding(callEndingStatus);
-    makeRecord(*callDetail);
+    if (isQueueFull())
+    {
+        callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
+        makeCallDetailRecord(callDetail);
+        return;
+    }
 
-    activeCalls.erase(callDetailIter);
+    awaitingCalls.push_back(callDetail.getId());
+    calls.emplace(callDetail.getId(), std::move(callDetail));
+    tryToAcceptCall();
 }
 
-void CallCenter::makeRecord(const CallDetail& callDetail) const
+void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
+{
+    std::lock_guard callCenterLock(callCenterMutex);
+
+    if (!calls.contains(callId)) return;
+    CallDetail& callDetail = calls.at(callId);
+
+    callDetail.recordEnding(callEndingStatus, date);
+    makeCallDetailRecord(callDetail);
+
+    availableOperators.push_back(callDetail.getOperatorId());
+    calls.erase(callId);
+    tryToAcceptCall();
+}
+
+void CallCenter::tryToAcceptCall()
+{
+    if (availableOperators.empty() || awaitingCalls.empty()) return;
+
+    const IdType operatorId = availableOperators.front();
+    const IdType callId = awaitingCalls.front();
+
+    Operator& availableOperator = operators.at(operatorId);
+    CallDetail& callDetail = calls.at(callId);
+
+    availableOperator.acceptCall(callDetail);
+
+    availableOperators.pop_front();
+    awaitingCalls.pop_front();
+}
+
+void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
 {
     std::ofstream out;
-    out.open(journalPath);
-    out << callDetail.toString();
+    out.open(journalPath, std::ios::app);
+    out << callDetail.toString() << "\n";
     out.close();
 }
 
 bool CallCenter::isQueueFull() const
 {
-    return calls.size() == queueSize;
+    return awaitingCalls.size() == queueSize;
 }

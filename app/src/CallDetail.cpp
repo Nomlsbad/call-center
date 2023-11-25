@@ -43,21 +43,21 @@ std::string CallDetail::getEndingStatusAsString() const
     }
 }
 
-void CallDetail::recordReceiption()
+void CallDetail::recordReceiption(Date date)
 {
     id = nextId++;
-    receiptDate = boost::posix_time::microsec_clock::local_time();
+    receiptDate = date;
 }
 
-void CallDetail::recordResponse(IdType acceptedOperatotId)
+void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 {
-    responseDate = boost::posix_time::microsec_clock::local_time();
+    responseDate = date;
     operatorId = acceptedOperatotId;
 }
 
-void CallDetail::recordEnding(CallEndingStatus status)
+void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
-    endingDate = boost::posix_time::microsec_clock::local_time();
+    endingDate = date;
     endingStatus = status;
 
     if (endingStatus == CallEndingStatus::OK)
