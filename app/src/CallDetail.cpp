@@ -3,6 +3,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "CallDetail.h"
+#include "Exceptions.h"
 
 IdType CallDetail::nextId = 1;
 
@@ -52,18 +53,35 @@ std::string CallDetail::getEndingStatusAsString() const
 
 void CallDetail::recordReceiption(Date date)
 {
+    if (recordingStatus != CREATED)
+    {
+        throw CallDetailRecordError("recordReceiption must be called first");
+    }
+
     id = nextId++;
     receiptDate = date;
+    recordingStatus = ACCEPTED;
 }
 
 void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 {
+    if (recordingStatus != ACCEPTED)
+    {
+        throw CallDetailRecordError("recordResponce must be called after receiption and befor ending");
+    }
+
     responseDate = date;
     operatorId = acceptedOperatotId;
+    recordingStatus = RESPONDED;
 }
 
 void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
+    if (recordingStatus != ACCEPTED || recordingStatus != RESPONDED)
+    {
+        throw CallDetailRecordError("recordEnding must be called after receiption or response");
+    }
+
     endingDate = date;
     endingStatus = status;
 
@@ -71,6 +89,7 @@ void CallDetail::recordEnding(CallEndingStatus status, Date date)
     {
         duration = endingDate - responseDate;
     }
+    recordingStatus = ENDED;
 }
 
 IdType CallDetail::getId() const

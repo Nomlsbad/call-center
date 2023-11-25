@@ -43,6 +43,20 @@ private:
 
 private:
 
+    static IdType nextId;
+
+    enum RecordingStatus
+    {
+        CREATED = 0,
+        ACCEPTED = 1,
+        RESPONDED = 2,
+        ENDED = 3
+    };
+
+    RecordingStatus recordingStatus = CREATED;
+
+private:
+
     IdType id = 0;
 
     std::string phone;
@@ -55,11 +69,9 @@ private:
 
     Date endingDate;
 
-    CallEndingStatus endingStatus{CallEndingStatus::NONE};
+    CallEndingStatus endingStatus = CallEndingStatus::NONE;
 
     TimeDuration duration;
-
-    static IdType nextId;
 };
 
 #endif // CALLDETAIL_H
