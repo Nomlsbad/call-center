@@ -6,6 +6,9 @@
 
 IdType CallDetail::nextId = 1;
 
+CallDetail::CallDetail(std::string phone)
+    : phone(std::move(phone)){};
+
 std::string CallDetail::toString() const
 {
     std::stringstream strStream;
@@ -36,10 +39,14 @@ std::string CallDetail::getEndingStatusAsString() const
 {
     switch (endingStatus)
     {
-    case CallEndingStatus::OK: return "OK";
-    case CallEndingStatus::TIMEOUT: return "TIMEOUT";
-    case CallEndingStatus::OVERLOAD: return "OVERLOAD";
-    default: return "STATUS_NONE";
+    case CallEndingStatus::OK:
+        return "OK";
+    case CallEndingStatus::TIMEOUT:
+        return "TIMEOUT";
+    case CallEndingStatus::OVERLOAD:
+        return "OVERLOAD";
+    default:
+        return "STATUS_NONE";
     }
 }
 
@@ -64,4 +71,14 @@ void CallDetail::recordEnding(CallEndingStatus status, Date date)
     {
         duration = endingDate - responseDate;
     }
+}
+
+IdType CallDetail::getId() const
+{
+    return id;
+}
+
+IdType CallDetail::getOperatorId() const
+{
+    return operatorId;
 }
