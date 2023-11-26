@@ -9,9 +9,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #Boost
 set(Boost_USE_MULTITHREADED ON)
 
-#Log4cpp
-include_directories(${CMAKE_SOURCE_DIR}/log4cpp/include)
-find_library(Log4Cpp_LIB log4cpp "${PROJECT_SOURCE_DIR}/log4cpp/lib")
+#Log4cplus
+include(FetchContent)
+FetchContent_Declare(
+        log4cplus
+        GIT_REPOSITORY "https://github.com/log4cplus/log4cplus"
+        GIT_TAG REL_2_1_1
+)
+FetchContent_MakeAvailable(log4cplus)
 
 #App
 set(APP_NAME ${PROJECT_NAME}_app)
