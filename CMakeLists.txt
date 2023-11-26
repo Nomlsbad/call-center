@@ -18,12 +18,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(log4cplus)
 
+#Google Tests
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+FetchContent_MakeAvailable(googletest)
+
 #App
 set(APP_NAME ${PROJECT_NAME}_app)
 
 set (APP_PATH "${PROJECT_SOURCE_DIR}/app")
 set (APP_SRC_PATH  "${APP_PATH}/src" )
 set (APP_INCLUDE_PATH  "${APP_PATH}/include" )
+set (APP_MAIN "${APP_SRC_PATH}/main.cpp")
 
 file (GLOB APP_SOURCES "${APP_SRC_PATH}/*.cpp")
 list(FILTER APP_SOURCES EXCLUDE REGEX "${APP_SRC_PATH}/*/main.cpp")
