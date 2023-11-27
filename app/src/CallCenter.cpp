@@ -4,7 +4,8 @@
 
 CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
     : queueSize(queueSize),
-      availableOperators(operatorsSize)
+      availableOperators(operatorsSize),
+      callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger")))
 {
     for (size_t i = 0; i < operatorsSize; ++i)
     {
@@ -22,10 +23,15 @@ void CallCenter::registerCall(const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callDetail.getId() << "]: call was accepted for registration");
+
     std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())
     {
+        LOG4CPLUS_INFO(callCenterLogger,
+                       "Call Center: Call[" << callDetail.getId() << "]: call was rejected. Queue is full");
         callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
         makeCallDetailRecord(callDetail);
         return;
@@ -33,21 +39,30 @@ void CallCenter::registerCall(const std::string& phone, Date date)
 
     awaitingCalls.push_back(callDetail.getId());
     calls.emplace(callDetail.getId(), std::move(callDetail));
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callDetail.getId() << "]: call was added to queue");
+
     tryToAcceptCall();
 }
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added for ending");
     std::lock_guard callCenterLock(callCenterMutex);
 
-    if (!calls.contains(callId)) return;
-    CallDetail& callDetail = calls.at(callId);
+    if (!calls.contains(callId))
+    {
+        LOG4CPLUS_WARN(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
+        return;
+    }
 
+    CallDetail& callDetail = calls.at(callId);
     callDetail.recordEnding(callEndingStatus, date);
     makeCallDetailRecord(callDetail);
 
     availableOperators.push_back(callDetail.getOperatorId());
     calls.erase(callId);
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
+
     tryToAcceptCall();
 }
 
@@ -62,6 +77,8 @@ void CallCenter::tryToAcceptCall()
     CallDetail& callDetail = calls.at(callId);
 
     availableOperator.acceptCall(callDetail);
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callId << "]: call was accepted by Operator[" << operatorId << "]");
 
     availableOperators.pop_front();
     awaitingCalls.pop_front();
