@@ -4,20 +4,26 @@
 #include <deque>
 #include <map>
 
+#include <log4cplus/log4cplus.h>
+
 #include "CallDetail.h"
 #include "Operator.h"
+
+
+namespace Log = log4cplus;
 
 
 class CallCenter
 {
 public:
+
     CallCenter(size_t queueSize, size_t operatorsSize);
 
     CallCenter(const CallCenter& callCenter) = delete;
     CallCenter(CallCenter&& callCenter) = delete;
 
-    CallCenter& operator= (const CallCenter& callCenter) = delete;
-    CallCenter& operator= (CallCenter&& callCenter) = delete;
+    CallCenter& operator=(const CallCenter& callCenter) = delete;
+    CallCenter& operator=(CallCenter&& callCenter) = delete;
 
 public:
 
@@ -41,9 +47,12 @@ private:
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;
 
-    std::deque<IdType> freeOperators;
+    std::deque<IdType> availableOperators;
     std::map<IdType, Operator> operators;
+
+    mutable std::mutex callCenterMutex;
+
+    Log::Logger callCenterLogger;
 };
 
-
-#endif //CALLCENTER_H
+#endif // CALLCENTER_H

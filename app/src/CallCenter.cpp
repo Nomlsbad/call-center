@@ -2,18 +2,36 @@
 
 #include "CallCenter.h"
 
-
 CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
-    : queueSize(queueSize)
-{}
+    : queueSize(queueSize),
+      availableOperators(operatorsSize),
+      callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger")))
+{
+    for (size_t i = 0; i < operatorsSize; ++i)
+    {
+        Operator newOperator;
+        const IdType operatorId = newOperator.getId();
+
+        newOperator.connectTo(this);
+
+        availableOperators[i] = operatorId;
+        operators.emplace(operatorId, std::move(newOperator));
+    }
+}
 
 void CallCenter::registerCall(const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callDetail.getId() << "]: call was accepted for registration");
+
+    std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())
     {
+        LOG4CPLUS_INFO(callCenterLogger,
+                       "Call Center: Call[" << callDetail.getId() << "]: call was rejected. Queue is full");
         callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
         makeCallDetailRecord(callDetail);
         return;
@@ -21,42 +39,56 @@ void CallCenter::registerCall(const std::string& phone, Date date)
 
     awaitingCalls.push_back(callDetail.getId());
     calls.emplace(callDetail.getId(), std::move(callDetail));
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callDetail.getId() << "]: call was added to queue");
+
     tryToAcceptCall();
 }
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
-    CallDetail& callDetail = calls.at(callId);
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added for ending");
+    std::lock_guard callCenterLock(callCenterMutex);
 
+    if (!calls.contains(callId))
+    {
+        LOG4CPLUS_WARN(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
+        return;
+    }
+
+    CallDetail& callDetail = calls.at(callId);
     callDetail.recordEnding(callEndingStatus, date);
     makeCallDetailRecord(callDetail);
 
-    freeOperators.push_back(callDetail.getOperatorId());
+    availableOperators.push_back(callDetail.getOperatorId());
     calls.erase(callId);
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
+
     tryToAcceptCall();
 }
 
 void CallCenter::tryToAcceptCall()
 {
-    if (freeOperators.empty() || awaitingCalls.empty()) return;
+    if (availableOperators.empty() || awaitingCalls.empty()) return;
 
-    const IdType operatorId = freeOperators.front();
+    const IdType operatorId = availableOperators.front();
     const IdType callId = awaitingCalls.front();
 
-    Operator& freeOperator = operators.at(operatorId);
+    Operator& availableOperator = operators.at(operatorId);
     CallDetail& callDetail = calls.at(callId);
 
-    freeOperator.acceptCall(callDetail);
+    availableOperator.acceptCall(callDetail);
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callId << "]: call was accepted by Operator[" << operatorId << "]");
 
-    freeOperators.pop_front();
+    availableOperators.pop_front();
     awaitingCalls.pop_front();
 }
 
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
 {
     std::ofstream out;
-    out.open(journalPath);
-    out << callDetail.toString();
+    out.open(journalPath, std::ios::app);
+    out << callDetail.toString() << "\n";
     out.close();
 }
 
