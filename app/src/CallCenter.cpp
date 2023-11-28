@@ -44,6 +44,22 @@ void CallCenter::registerCall(const std::string& phone, Date date)
     tryToAcceptCall();
 }
 
+void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
+{
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callId << "]: call was accepted by Operator[" << operatorId << "]");
+    std::lock_guard callCenterLock(callCenterMutex);
+
+    if (!calls.contains(callId))
+    {
+        LOG4CPLUS_WARN(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
+        return;
+    }
+
+    CallDetail& callDetail = calls.at(callId);
+    callDetail.recordResponse(operatorId, date);
+}
+
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
 {
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added for ending");
@@ -77,8 +93,6 @@ void CallCenter::tryToAcceptCall()
     CallDetail& callDetail = calls.at(callId);
 
     availableOperator.acceptCall(callDetail);
-    LOG4CPLUS_INFO(callCenterLogger,
-                   "Call Center: Call[" << callId << "]: call was accepted by Operator[" << operatorId << "]");
 
     availableOperators.pop_front();
     awaitingCalls.pop_front();
