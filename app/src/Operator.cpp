@@ -15,7 +15,7 @@ void Operator::acceptCall(IdType callId)
         return;
     }
 
-    LOG4CPLUS_WARN(operatorLogger, "Operator: Operator[" << id << "]: operator was accepted call");
+    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: operator was accepted call");
     callThread = std::thread(&Operator::talk, this, callId);
     callThread.detach();
 }
@@ -23,12 +23,12 @@ void Operator::acceptCall(IdType callId)
 void Operator::talk(IdType callId) const
 {
     if (!isConnected()) return;
-    LOG4CPLUS_WARN(operatorLogger, "Operator: Operator[" << id << "]: talking was began");
+    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: talking was began");
 
     callCenter->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
     std::this_thread::sleep_for(std::chrono::seconds(5));
     callCenter->endCall(callId, CallEndingStatus::OK, boost::posix_time::microsec_clock::local_time());
 
 
-    LOG4CPLUS_WARN(operatorLogger, "Operator: Operator[" << id << "]: talking was ended");
+    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: talking was ended");
 }
