@@ -1,12 +1,20 @@
 BasedOnStyle: Microsoft
-BreakBeforeBraces: Allman
+
+AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortLambdasOnASingleLine: All
-PackConstructorInitializers: Never
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+
+BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeColon
+
+ColumnLimit: 120
+
 EmptyLineAfterAccessModifier: Always
 EmptyLineBeforeAccessModifier: LogicalBlock
+
+PackConstructorInitializers: Never
 PointerAlignment: Left
-AccessModifierOffset: -4
-ColumnLimit: 120
