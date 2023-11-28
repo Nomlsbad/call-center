@@ -90,9 +90,7 @@ void CallCenter::tryToAcceptCall()
     const IdType callId = awaitingCalls.front();
 
     Operator& availableOperator = operators.at(operatorId);
-    CallDetail& callDetail = calls.at(callId);
-
-    availableOperator.acceptCall(callDetail);
+    availableOperator.acceptCall(callId);
 
     availableOperators.pop_front();
     awaitingCalls.pop_front();
