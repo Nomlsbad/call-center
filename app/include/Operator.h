@@ -16,7 +16,7 @@ public:
 
     void connectTo(class CallCenter* center) { callCenter = center; }
 
-    void acceptCall(class CallDetail& callDetail);
+    void acceptCall(IdType callId);
 
 private:
 
