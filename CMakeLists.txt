@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 #Boost
+find_package(Boost 1.83 REQUIRED)
 set(Boost_USE_MULTITHREADED ON)
 
 #Log4cplus
@@ -34,7 +35,7 @@ set (APP_SRC_PATH  "${APP_PATH}/src" )
 set (APP_INCLUDE_PATH  "${APP_PATH}/include" )
 set (APP_MAIN "${APP_SRC_PATH}/main.cpp")
 
-file (GLOB APP_SOURCES "${APP_SRC_PATH}/*.cpp")
+file (GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS "${APP_SRC_PATH}/*.cpp")
 list(FILTER APP_SOURCES EXCLUDE REGEX "${APP_SRC_PATH}/*/main.cpp")
 message(STATUS ${APP_SOURCES} )
 
