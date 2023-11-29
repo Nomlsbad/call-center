@@ -2,11 +2,13 @@ BasedOnStyle: Microsoft
 
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
+AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortLambdasOnASingleLine: All
-AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: Yes
 
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeColon
@@ -16,5 +18,15 @@ ColumnLimit: 120
 EmptyLineAfterAccessModifier: Always
 EmptyLineBeforeAccessModifier: LogicalBlock
 
+IndentCaseBlocks: false
+IndentWidth: 4
+
+NamespaceIndentation: None
+
 PackConstructorInitializers: Never
 PointerAlignment: Left
+ReferenceAlignment: Pointer
+
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseInsensitive
+SortUsingDeclarations: LexicographicNumeric

@@ -1,11 +1,14 @@
 #ifndef LISTENER_H
 #define LISTENER_H
 
+#include "Types.h"
+
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
+#include <log4cplus/log4cplus.h>
 #include <memory>
 
-#include "Types.h"
+namespace Log = log4cplus;
 
 namespace beast = boost::beast;
 namespace net = boost::asio;
@@ -28,6 +31,7 @@ private:
     net::io_context& ioContext;
     tcp::acceptor acceptor;
 
+    Log::Logger serverLogger;
 };
 
 #endif // LISTENER_H

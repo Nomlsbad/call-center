@@ -1,11 +1,11 @@
 #ifndef HTTPSESSION_H
 #define HTTPSESSION_H
 
+#include "Types.h"
+
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <memory>
-
-#include "Types.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -16,7 +16,7 @@ public:
 
     explicit HttpSession(tcp::socket&& socket);
 
-    void run() {};
+    void run(){};
 
 private:
 
@@ -24,7 +24,6 @@ private:
 
     static constexpr size_t queueSize = 8;
     std::vector<http::message_generator> responceQueue;
-
 };
 
 #endif // HTTPSESSION_H
