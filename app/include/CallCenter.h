@@ -4,8 +4,14 @@
 #include <deque>
 #include <map>
 
+#include <log4cplus/log4cplus.h>
+
 #include "CallDetail.h"
 #include "Operator.h"
+
+
+namespace Log = log4cplus;
+
 
 class CallCenter
 {
@@ -22,6 +28,7 @@ public:
 public:
 
     void registerCall(const std::string& phone, Date date);
+    void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
 private:
@@ -45,6 +52,8 @@ private:
     std::map<IdType, Operator> operators;
 
     mutable std::mutex callCenterMutex;
+
+    Log::Logger callCenterLogger;
 };
 
 #endif // CALLCENTER_H

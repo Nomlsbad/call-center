@@ -77,7 +77,7 @@ void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 
 void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
-    if (recordingStatus != ACCEPTED || recordingStatus != RESPONDED)
+    if (recordingStatus != ACCEPTED && recordingStatus != RESPONDED)
     {
         throw CallDetailRecordError("recordEnding must be called after receiption or response");
     }
