@@ -3,12 +3,17 @@
 
 #include <thread>
 
+#include <log4cplus/log4cplus.h>
+
 #include "Types.h"
+
+namespace Log = log4cplus;
 
 class Operator
 {
 public:
-    Operator(): id(nextId++) {};
+
+    Operator();
 
     [[nodiscard]] IdType getId() const { return id; }
 
@@ -23,6 +28,7 @@ private:
     void talk(IdType callId) const;
 
 private:
+
     IdType id = 0;
 
     static IdType nextId;
@@ -30,7 +36,8 @@ private:
     class CallCenter* callCenter = nullptr;
 
     std::thread callThread;
+
+    Log::Logger operatorLogger;
 };
 
-
-#endif //OPERATOR_H
+#endif // OPERATOR_H
