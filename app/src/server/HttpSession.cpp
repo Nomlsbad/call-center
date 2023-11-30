@@ -1,5 +1,7 @@
 #include "server/HttpSession.h"
 
+#include <boost/asio/dispatch.hpp>
+
 HttpSession::HttpSession(tcp::socket&& socket)
     : stream(std::move(socket))
 {
@@ -23,4 +25,9 @@ void HttpSession::doRead()
 
 void HttpSession::onRead(beast::error_code errorCode, size_t bytes_transfered)
 {
+    boost::ignore_unused(bytes_transfered);
+    if (errorCode)
+    {
+        return;
+    }
 }
