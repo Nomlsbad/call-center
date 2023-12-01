@@ -1,10 +1,11 @@
 #include "server/Listener.h"
-
 #include "server/HttpSession.h"
+#include "server/CallController.h"
 
 Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint)
     : ioContext(ioContext),
       acceptor(net::make_strand(ioContext)),
+      controller(std::make_shared<CallController>()),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
     try
@@ -39,7 +40,10 @@ void Listener::onAccept(beast::error_code ec, tcp::socket socket)
         LOG4CPLUS_ERROR(serverLogger, ec.message());
         return;
     }
+    else
+    {
+        std::make_shared<HttpSession>(std::move(socket), controller)->run();
+    }
 
-    std::make_shared<HttpSession>(std::move(socket))->run();
     doAccept();
 }

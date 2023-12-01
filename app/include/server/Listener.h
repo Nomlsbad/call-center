@@ -10,9 +10,6 @@
 
 namespace Log = log4cplus;
 
-namespace beast = boost::beast;
-namespace net = boost::asio;
-
 class Listener : public std::enable_shared_from_this<Listener>
 {
 public:
@@ -20,6 +17,8 @@ public:
     Listener(net::io_context& ioContext, tcp::endpoint endpoint);
 
     void run();
+
+    ~Listener() = default;
 
 private:
 
@@ -30,6 +29,8 @@ private:
 
     net::io_context& ioContext;
     tcp::acceptor acceptor;
+
+    std::shared_ptr<class CallController> controller;
 
     Log::Logger serverLogger;
 };
