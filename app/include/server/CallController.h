@@ -1,13 +1,11 @@
 #ifndef CALLCONTROLLER_H
 #define CALLCONTROLLER_H
 
-#include <boost/beast/http.hpp>
+#include "Types.h"
+
 #include <functional>
 #include <string>
 #include <unordered_map>
-
-namespace beast = boost::beast;
-namespace http = beast::http;
 
 class CallController
 {
@@ -21,11 +19,16 @@ public:
 
     CallController();
 
-    static ResponceType registerCall(RequestType&& req);
+    ResponceType handleRequest(RequestType&& req) const;
+
+    ResponceType registerCall(RequestType&& req) const;
+    ResponceType endCall(RequestType&& req) const;
 
 private:
 
     const std::unordered_map<std::string, const HandleRequest> enpoindsMap;
+
+    std::shared_ptr<class CallCenter> callCenter;
 };
 
 #endif // CALLCONTROLLER_H
