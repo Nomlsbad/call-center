@@ -2,15 +2,18 @@
 #include "server/CallController.h"
 
 #include <boost/asio/dispatch.hpp>
+#include <log4cplus/loggingmacros.h>
 
 HttpSession::HttpSession(tcp::socket&& socket, std::weak_ptr<CallController> controller)
     : stream(std::move(socket)),
-      controller(std::move(controller))
+      controller(std::move(controller)),
+      sessionLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
 }
 
 void HttpSession::run()
 {
+    LOG4CPLUS_INFO(sessionLogger, "HttpSession: session was run");
     net::dispatch(stream.get_executor(), beast::bind_front_handler(&HttpSession::read, shared_from_this()));
 }
 
@@ -35,7 +38,7 @@ void HttpSession::onRead(beast::error_code errorCode, size_t bytes_transfered)
     }
     if (errorCode)
     {
-        // Log
+        LOG4CPLUS_ERROR(sessionLogger, "HttpsSession: " << errorCode.message());
         return;
     }
 
@@ -66,7 +69,7 @@ void HttpSession::onWrite(bool keepAlive, beast::error_code errorCode, size_t by
 
     if (errorCode)
     {
-        // log
+        LOG4CPLUS_ERROR(sessionLogger, "HttpsSession: " << errorCode.message());
         return;
     }
 
@@ -91,6 +94,6 @@ void HttpSession::addResponseToQueue(http::message_generator response)
 
 void HttpSession::close()
 {
-    beast::error_code errorCode;
-    stream.socket().shutdown(tcp::socket::shutdown_send, errorCode);
+    LOG4CPLUS_INFO(sessionLogger, "HttpSession: session was closed");
+    stream.socket().shutdown(tcp::socket::shutdown_send);
 }

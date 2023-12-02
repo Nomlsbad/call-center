@@ -1,11 +1,13 @@
 #include "server/Listener.h"
-#include "server/HttpSession.h"
 #include "server/CallController.h"
+#include "server/HttpSession.h"
 
-Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint)
+#include <log4cplus/loggingmacros.h>
+
+Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<CallController> controller)
     : ioContext(ioContext),
       acceptor(net::make_strand(ioContext)),
-      controller(std::make_shared<CallController>()),
+      controller(std::move(controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
     try
@@ -17,13 +19,14 @@ Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint)
     }
     catch (const boost::system::system_error& e)
     {
-        LOG4CPLUS_FATAL(serverLogger, e.what());
+        LOG4CPLUS_FATAL(serverLogger, "Listener: " << e.what());
         return;
     }
 }
 
 void Listener::run()
 {
+    LOG4CPLUS_INFO(serverLogger, "Listener: listner was run");
     net::dispatch(acceptor.get_executor(), beast::bind_front_handler(&Listener::doAccept, shared_from_this()));
 }
 
@@ -37,11 +40,12 @@ void Listener::onAccept(beast::error_code ec, tcp::socket socket)
 {
     if (ec)
     {
-        LOG4CPLUS_ERROR(serverLogger, ec.message());
+        LOG4CPLUS_ERROR(serverLogger, "Listener: " << ec.message());
         return;
     }
     else
     {
+        LOG4CPLUS_INFO(serverLogger, "Listener: HttpSession was created");
         std::make_shared<HttpSession>(std::move(socket), controller)->run();
     }
 

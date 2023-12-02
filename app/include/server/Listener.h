@@ -5,16 +5,18 @@
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
-#include <log4cplus/log4cplus.h>
+#include <log4cplus/logger.h>
 #include <memory>
 
 namespace Log = log4cplus;
+
+class CallController;
 
 class Listener : public std::enable_shared_from_this<Listener>
 {
 public:
 
-    Listener(net::io_context& ioContext, tcp::endpoint endpoint);
+    Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<CallController> controller);
 
     void run();
 
@@ -30,7 +32,7 @@ private:
     net::io_context& ioContext;
     tcp::acceptor acceptor;
 
-    std::shared_ptr<class CallController> controller;
+    std::weak_ptr<CallController> controller;
 
     Log::Logger serverLogger;
 };

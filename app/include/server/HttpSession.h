@@ -6,6 +6,10 @@
 #include <deque>
 #include <memory>
 
+#include <log4cplus/logger.h>
+
+namespace Log = log4cplus;
+
 class CallController;
 
 class HttpSession : public std::enable_shared_from_this<HttpSession>
@@ -39,6 +43,9 @@ private:
     std::deque<http::message_generator> responceQueue;
 
     std::optional<http::request_parser<http::string_body>> parser;
+
+    Log::Logger sessionLogger;
+
 };
 
 #endif // HTTPSESSION_H
