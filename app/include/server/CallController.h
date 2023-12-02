@@ -7,6 +7,12 @@
 #include <string>
 #include <unordered_map>
 
+#include <log4cplus/logger.h>
+
+namespace Log = log4cplus;
+
+class CallCenter;
+
 class CallController
 {
 public:
@@ -26,9 +32,12 @@ public:
 
 private:
 
+    std::shared_ptr<CallCenter> callCenter;
+
+    Log::Logger controllerLogger;
+
     const std::unordered_map<std::string, const HandleRequest> enpoindsMap;
 
-    std::shared_ptr<class CallCenter> callCenter;
 };
 
 #endif // CALLCONTROLLER_H

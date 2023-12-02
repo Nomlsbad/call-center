@@ -1,16 +1,24 @@
 #include "server/CallController.h"
 #include "CallCenter.h"
 
+#include <log4cplus/loggingmacros.h>
+
 CallController::CallController()
-    : enpoindsMap({{"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
-                   {"/end-call", [this](RequestType&& req) { return this->endCall(std::move(req)); }}})
+    : callCenter(std::make_shared<CallCenter>(10, 5)),
+      controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
+      enpoindsMap(
+          {
+          {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
+          {"/end-call", [this](RequestType&& req) { return this->endCall(std::move(req)); }},
+          }
+      )
 {
-    callCenter = std::make_shared<CallCenter>(10, 5);
 }
 
 CallController::ResponceType CallController::handleRequest(RequestType&& req) const
 {
     const std::string& endpoint = req.target();
+    LOG4CPLUS_DEBUG(controllerLogger, "Handling request was begun");
     try
     {
         auto& handler = enpoindsMap.at(endpoint);
@@ -18,24 +26,29 @@ CallController::ResponceType CallController::handleRequest(RequestType&& req) co
     }
     catch (const std::out_of_range& e)
     {
-        //TODO: return error
-        return http::response<http::string_body>();
+        http::response<http::string_body> res{http::status::bad_request, req.version()};
+        res.prepare_payload();
+        return res;
     }
 }
 
 CallController::ResponceType CallController::registerCall(RequestType&& req) const
 {
-    boost::ignore_unused(req);
-    //TODO: smth like that:
-    //callCenter->registerCall(req.body(), boost::posix_time::microsec_clock::local_time());
-    return http::response<http::string_body>();
+    LOG4CPLUS_DEBUG(controllerLogger, "/register-call");
+    http::response<http::string_body> res{http::status::ok, req.version()};
+    // TODO: smth like that:
+    // callCenter->registerCall(req.body(), boost::posix_time::microsec_clock::local_time());
+    res.prepare_payload();
+    return res;
 }
 
 CallController::ResponceType CallController::endCall(RequestType&& req) const
 {
-    boost::ignore_unused(req);
-    //TODO: smth like that:
-    //callCenter->endCall(callId, callEndingStatus,
-    //                    boost::posix_time::microsec_clock::local_time());
-    return http::response<http::string_body>();
+    LOG4CPLUS_DEBUG(controllerLogger, "/end-call");
+    http::response<http::string_body> res{http::status::ok, req.version()};
+    // TODO: smth like that:
+    // callCenter->endCall(callId, callEndingStatus,
+    //                     boost::posix_time::microsec_clock::local_time());
+    res.prepare_payload();
+    return res;
 }
