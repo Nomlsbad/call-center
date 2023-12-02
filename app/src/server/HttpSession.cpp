@@ -1,10 +1,10 @@
 #include "server/HttpSession.h"
-#include "server/CallController.h"
+#include "controller/IController.h"
 
 #include <boost/asio/dispatch.hpp>
 #include <log4cplus/loggingmacros.h>
 
-HttpSession::HttpSession(tcp::socket&& socket, std::weak_ptr<CallController> controller)
+HttpSession::HttpSession(tcp::socket&& socket, std::weak_ptr<IController> controller)
     : stream(std::move(socket)),
       controller(std::move(controller)),
       sessionLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))

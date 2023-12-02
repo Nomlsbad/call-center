@@ -10,13 +10,13 @@
 
 namespace Log = log4cplus;
 
-class CallController;
+class IController;
 
 class Listener : public std::enable_shared_from_this<Listener>
 {
 public:
 
-    Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<CallController> controller);
+    Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<IController> controller);
 
     void run();
 
@@ -32,7 +32,7 @@ private:
     net::io_context& ioContext;
     tcp::acceptor acceptor;
 
-    std::weak_ptr<CallController> controller;
+    std::weak_ptr<IController> controller;
 
     Log::Logger serverLogger;
 };

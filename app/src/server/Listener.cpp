@@ -1,10 +1,10 @@
 #include "server/Listener.h"
-#include "server/CallController.h"
+#include "controller/IController.h"
 #include "server/HttpSession.h"
 
 #include <log4cplus/loggingmacros.h>
 
-Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<CallController> controller)
+Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<IController> controller)
     : ioContext(ioContext),
       acceptor(net::make_strand(ioContext)),
       controller(std::move(controller)),

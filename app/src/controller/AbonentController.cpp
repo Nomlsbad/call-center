@@ -1,9 +1,9 @@
-#include "server/CallController.h"
+#include "controller/AbonentController.h"
 #include "CallCenter.h"
 
 #include <log4cplus/loggingmacros.h>
 
-CallController::CallController()
+AbonentController::AbonentController()
     : callCenter(std::make_shared<CallCenter>(10, 5)),
       controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
       enpoindsMap(
@@ -15,7 +15,7 @@ CallController::CallController()
 {
 }
 
-CallController::ResponceType CallController::handleRequest(RequestType&& req) const
+AbonentController::ResponceType AbonentController::handleRequest(RequestType&& req) const
 {
     const std::string& endpoint = req.target();
     LOG4CPLUS_DEBUG(controllerLogger, "Handling request was begun");
@@ -32,7 +32,7 @@ CallController::ResponceType CallController::handleRequest(RequestType&& req) co
     }
 }
 
-CallController::ResponceType CallController::registerCall(RequestType&& req) const
+AbonentController::ResponceType AbonentController::registerCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/register-call");
     http::response<http::string_body> res{http::status::ok, req.version()};
@@ -42,7 +42,7 @@ CallController::ResponceType CallController::registerCall(RequestType&& req) con
     return res;
 }
 
-CallController::ResponceType CallController::endCall(RequestType&& req) const
+AbonentController::ResponceType AbonentController::endCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/end-call");
     http::response<http::string_body> res{http::status::ok, req.version()};

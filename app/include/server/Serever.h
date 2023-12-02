@@ -8,7 +8,7 @@
 
 namespace Log = log4cplus;
 
-class CallController;
+class IController;
 class Listener;
 
 class Serever
@@ -26,7 +26,7 @@ private:
     unsigned short port = 1234;
     int threads = 2;
 
-    std::shared_ptr<CallController> controller;
+    std::shared_ptr<IController> controller;
 
     net::io_context ioContext;
     std::shared_ptr<Listener> listener;

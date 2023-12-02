@@ -10,13 +10,13 @@
 
 namespace Log = log4cplus;
 
-class CallController;
+class IController;
 
 class HttpSession : public std::enable_shared_from_this<HttpSession>
 {
 public:
 
-    explicit HttpSession(tcp::socket&& socket, std::weak_ptr<CallController> controller);
+    explicit HttpSession(tcp::socket&& socket, std::weak_ptr<IController> controller);
 
     void run();
 
@@ -37,7 +37,7 @@ private:
     beast::tcp_stream stream;
     beast::flat_buffer buffer;
 
-    std::weak_ptr<CallController> controller;
+    std::weak_ptr<IController> controller;
 
     static constexpr size_t queueSize = 8;
     std::deque<http::message_generator> responceQueue;
