@@ -23,7 +23,7 @@ public:
 private:
 
     net::ip::address address = net::ip::make_address("127.0.0.1");
-    unsigned short port = 12345;
+    unsigned short port = 1234;
     int threads = 2;
 
     std::shared_ptr<CallController> controller;
