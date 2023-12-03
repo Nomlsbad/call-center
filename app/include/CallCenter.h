@@ -27,7 +27,7 @@ public:
 
 public:
 
-    void registerCall(const std::string& phone, Date date);
+    void registerCall(IdType& callId, const std::string& phone, Date date);
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 

@@ -19,27 +19,28 @@ CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
     }
 }
 
-void CallCenter::registerCall(const std::string& phone, Date date)
+void CallCenter::registerCall(IdType& callId, const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
+    callId = callDetail.getId();
     LOG4CPLUS_INFO(callCenterLogger,
-                   "Call Center: Call[" << callDetail.getId() << "]: call was accepted for registration");
+                   "Call Center: Call[" << callId << "]: call was accepted for registration");
 
     std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())
     {
         LOG4CPLUS_INFO(callCenterLogger,
-                       "Call Center: Call[" << callDetail.getId() << "]: call was rejected. Queue is full");
+                       "Call Center: Call[" << callId << "]: call was rejected. Queue is full");
         callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
         makeCallDetailRecord(callDetail);
         return;
     }
 
-    awaitingCalls.push_back(callDetail.getId());
-    calls.emplace(callDetail.getId(), std::move(callDetail));
-    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callDetail.getId() << "]: call was added to queue");
+    awaitingCalls.push_back(callId);
+    calls.emplace(callId, std::move(callDetail));
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added to queue");
 
     tryToAcceptCall();
 }

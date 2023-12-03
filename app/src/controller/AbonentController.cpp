@@ -1,17 +1,17 @@
 #include "controller/AbonentController.h"
 #include "CallCenter.h"
 
+#include <utils/Exceptions.h>
 #include <log4cplus/loggingmacros.h>
+#include <nlohmann/json.hpp>
 
 AbonentController::AbonentController()
     : callCenter(std::make_shared<CallCenter>(10, 5)),
       controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
-      enpoindsMap(
-          {
+      enpoindsMap({
           {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
           {"/end-call", [this](RequestType&& req) { return this->endCall(std::move(req)); }},
-          }
-      )
+      })
 {
 }
 
@@ -26,29 +26,57 @@ AbonentController::ResponceType AbonentController::handleRequest(RequestType&& r
     }
     catch (const std::out_of_range& e)
     {
-        http::response<http::string_body> res{http::status::bad_request, req.version()};
-        res.prepare_payload();
-        return res;
+        return badRequest(std::move(req), e.what());
     }
 }
 
 AbonentController::ResponceType AbonentController::registerCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/register-call");
-    http::response<http::string_body> res{http::status::ok, req.version()};
-    // TODO: smth like that:
-    // callCenter->registerCall(req.body(), boost::posix_time::microsec_clock::local_time());
-    res.prepare_payload();
-    return res;
+
+    try
+    {
+        IdType callId = 0;
+        json requestBody = json::parse(req.body());
+        const std::string phone = requestBody.at("phone");
+
+        callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
+
+        http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
+        res.set(http::field::content_type, "text/plain");
+        return res;
+    }
+    catch (const json::exception& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        return badRequest(std::move(req), e.what());
+    }
 }
 
 AbonentController::ResponceType AbonentController::endCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/end-call");
-    http::response<http::string_body> res{http::status::ok, req.version()};
-    // TODO: smth like that:
-    // callCenter->endCall(callId, callEndingStatus,
-    //                     boost::posix_time::microsec_clock::local_time());
-    res.prepare_payload();
-    return res;
+
+    try
+    {
+        json requestBody = json::parse(req.body());
+        const IdType callId = requestBody.at("callId");
+        const CallEndingStatus callEndingStatus = requestBody.at("status");
+
+        callCenter->endCall(callId, callEndingStatus, boost::posix_time::microsec_clock::local_time());
+
+        http::response<http::string_body> res(http::status::ok, req.version(), "Call was ended");
+        res.set(http::field::content_type, "text/plain");
+        return res;
+    }
+    catch (const json::exception& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        return badRequest(std::move(req), e.what());
+    }
+    catch (const CCenter::CallDetailRecordError& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        return serverError(std::move(req), "Server error");
+    }
 }
