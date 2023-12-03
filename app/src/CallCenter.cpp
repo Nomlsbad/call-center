@@ -29,6 +29,8 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
 
     std::lock_guard callCenterLock(callCenterMutex);
 
+    onRegisterCallSignature(callId, phone);
+
     if (isQueueFull())
     {
         LOG4CPLUS_INFO(callCenterLogger,
@@ -59,6 +61,8 @@ void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
 
     CallDetail& callDetail = calls.at(callId);
     callDetail.recordResponse(operatorId, date);
+
+    onResponseCallSignature(callId);
 }
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
@@ -80,6 +84,7 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
     calls.erase(callId);
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
 
+    onEndCallSignature(callId);
     tryToAcceptCall();
 }
 

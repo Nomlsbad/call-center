@@ -31,6 +31,12 @@ public:
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
+public:
+
+    std::function<void(IdType, std::string)> onRegisterCallSignature;
+    std::function<void(IdType)> onResponseCallSignature;
+    std::function<void(IdType)> onEndCallSignature;
+
 private:
 
     [[nodiscard]] bool isQueueFull() const;
