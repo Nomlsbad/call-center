@@ -1,7 +1,5 @@
-#include "controller/AbonentController.h"
 #include "CallCenter.h"
-#include "models/Abonent.h"
-#include "utils/AbonentSimulation.h"
+#include "controller/AbonentController.h"
 #include "utils/Exceptions.h"
 
 #include <log4cplus/loggingmacros.h>
@@ -13,8 +11,7 @@ AbonentController::AbonentController()
       enpoindsMap({
           {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
           {"/end-call", [this](RequestType&& req) { return this->endCall(std::move(req)); }},
-      }),
-      simulation(std::make_shared<AbonentSimulation>(weak_from_this()))
+      })
 {
 }
 
@@ -44,7 +41,6 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
         const std::string phone = requestBody.at("phone");
 
         callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
-        //simulation->
 
         http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
         res.set(http::field::content_type, "text/plain");
