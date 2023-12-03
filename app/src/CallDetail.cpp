@@ -3,7 +3,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "CallDetail.h"
-#include "Exceptions.h"
+#include "utils/Exceptions.h"
 
 IdType CallDetail::nextId = 1;
 
@@ -55,7 +55,7 @@ void CallDetail::recordReceiption(Date date)
 {
     if (recordingStatus != CREATED)
     {
-        throw CallDetailRecordError("recordReceiption must be called first");
+        throw CCenter::CallDetailRecordError("recordReceiption must be called first");
     }
 
     id = nextId++;
@@ -67,7 +67,7 @@ void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 {
     if (recordingStatus != ACCEPTED)
     {
-        throw CallDetailRecordError("recordResponce must be called after receiption and befor ending");
+        throw CCenter::CallDetailRecordError("recordResponce must be called after receiption and befor ending");
     }
 
     responseDate = date;
@@ -79,7 +79,7 @@ void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
     if (recordingStatus != ACCEPTED && recordingStatus != RESPONDED)
     {
-        throw CallDetailRecordError("recordEnding must be called after receiption or response");
+        throw CCenter::CallDetailRecordError("recordEnding must be called after receiption or response");
     }
 
     endingDate = date;
