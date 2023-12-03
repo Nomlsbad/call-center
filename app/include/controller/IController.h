@@ -19,6 +19,14 @@ public:
 
     virtual ResponceType handleRequest(RequestType&& req) const = 0;
 
+protected:
+
+    static ResponceType badRequest(RequestType&& req, std::string what);
+    static ResponceType notFound(RequestType&& req, std::string what);
+    static ResponceType serverError(RequestType&& req, std::string what);
+
+    static ResponceType errorResponce(RequestType&& req, std::string what, http::status status);
+
 };
 
 #endif // ICONTROLLER_H
