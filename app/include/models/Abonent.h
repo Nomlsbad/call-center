@@ -4,18 +4,17 @@
 #include "Types.h"
 
 enum class CallEndingStatus : uint8_t;
-class AbonentController;
+
+class CallCenter;
 
 class Abonent
 {
 public:
 
-    explicit Abonent(std::string phone, std::weak_ptr<const AbonentController> controller);
+    explicit Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
 
     [[nodiscard]] IdType getCallId() const;
     [[nodiscard]] std::string getPhone() const;
-
-    void setCallId(IdType id);
 
 private:
 
@@ -27,8 +26,8 @@ public:
 
     void response();
 
-    void wait();
-    void talk();
+    void wait() const;
+    void talk() const;
 
     bool wasResponded = false;
 
@@ -36,9 +35,7 @@ private:
 
     static TimeDuration getRandomDuration(const TimeDuration& min, const TimeDuration& max);
 
-    static http::request<http::string_body> endCallRequest(CallEndingStatus callEndingStatus);
-
-    std::weak_ptr<const AbonentController> controller;
+    std::weak_ptr<CallCenter> callCenter;
     TimeDuration waitingTime;
     TimeDuration talkingTime;
 };

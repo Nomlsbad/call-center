@@ -7,6 +7,7 @@
 
 namespace Log = log4cplus;
 
+class AbonentSimulation;
 class CallCenter;
 
 class AbonentController : public IController, std::enable_shared_from_this<AbonentController>
@@ -28,6 +29,7 @@ public:
 private:
 
     std::shared_ptr<CallCenter> callCenter;
+    std::shared_ptr<AbonentSimulation> callerSimulation;
 
     Log::Logger controllerLogger;
 

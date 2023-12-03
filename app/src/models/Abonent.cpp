@@ -1,13 +1,12 @@
+#include "CallCenter.h"
 #include "models/Abonent.h"
 
-#include <CallDetail.h>
-#include <controller/AbonentController.h>
 #include <thread>
 
-Abonent::Abonent(std::string phone, std::weak_ptr<const AbonentController> controller)
-    : callId(0),
+Abonent::Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter)
+    : callId(callId),
       phone(std::move(phone)),
-      controller(std::move(controller))
+      callCenter(std::move(callCenter))
 {
     const TimeDuration minWaitingTime(0, 0, 1);
     const TimeDuration maxWaitingTime(0, 0, 5);
@@ -18,20 +17,20 @@ Abonent::Abonent(std::string phone, std::weak_ptr<const AbonentController> contr
     talkingTime = getRandomDuration(minTalkingTime, maxTalkingTime);
 }
 
-void Abonent::wait()
+void Abonent::wait() const
 {
     std::thread(
         [this]()
         {
-            const std::chrono::milliseconds millisecondsWaitingTime(waitingTime.total_milliseconds());
-            std::this_thread::sleep_for(millisecondsWaitingTime);
+            const std::chrono::milliseconds msWaitingTime(waitingTime.total_milliseconds());
+            std::this_thread::sleep_for(msWaitingTime);
 
             if (wasResponded) return;
-            controller.lock()->endCall(endCallRequest(CallEndingStatus::TIMEOUT));
+            callCenter.lock()->endCall(callId, CallEndingStatus::TIMEOUT, boost::posix_time::microsec_clock::local_time());
         }).detach();
 }
 
-void Abonent::talk()
+void Abonent::talk() const
 {
     std::thread(
         [this]()
@@ -39,7 +38,7 @@ void Abonent::talk()
             const std::chrono::milliseconds millisecondsTalkingTime(talkingTime.total_milliseconds());
             std::this_thread::sleep_for(millisecondsTalkingTime);
 
-            controller.lock()->endCall(endCallRequest(CallEndingStatus::OK));
+            callCenter.lock()->endCall(callId, CallEndingStatus::OK, boost::posix_time::microsec_clock::local_time());
         }).detach();
 }
 
@@ -52,16 +51,6 @@ TimeDuration Abonent::getRandomDuration(const TimeDuration& min, const TimeDurat
     return boost::posix_time::milliseconds(randomDuration);
 }
 
-http::request<http::string_body> Abonent::endCallRequest(CallEndingStatus callEndingStatus)
-{
-    http::request<http::string_body> req{http::verb::post, "/end-call", 11};
-    const int staus = static_cast<int>(callEndingStatus);
-
-    req.body() = R"('{"callId":)" + std::to_string(123) + R"(,"status":)" + std::to_string(staus) + "}\'";
-    req.prepare_payload();
-    return req;
-}
-
 IdType Abonent::getCallId() const
 {
     return callId;
@@ -70,11 +59,6 @@ IdType Abonent::getCallId() const
 std::string Abonent::getPhone() const
 {
     return phone;
-}
-
-void Abonent::setCallId(IdType id)
-{
-    callId = id;
 }
 
 void Abonent::response()

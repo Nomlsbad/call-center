@@ -1,5 +1,6 @@
-#include "CallCenter.h"
 #include "controller/AbonentController.h"
+#include "CallCenter.h"
+#include "utils/AbonentSimulation.h"
 #include "utils/Exceptions.h"
 
 #include <log4cplus/loggingmacros.h>
@@ -7,6 +8,7 @@
 
 AbonentController::AbonentController()
     : callCenter(std::make_shared<CallCenter>(10, 5)),
+      callerSimulation(std::make_shared<AbonentSimulation>(callCenter)),
       controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
       enpoindsMap({
           {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
