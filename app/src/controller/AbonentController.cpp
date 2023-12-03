@@ -1,7 +1,9 @@
 #include "controller/AbonentController.h"
 #include "CallCenter.h"
+#include "models/Abonent.h"
+#include "utils/AbonentSimulation.h"
+#include "utils/Exceptions.h"
 
-#include <utils/Exceptions.h>
 #include <log4cplus/loggingmacros.h>
 #include <nlohmann/json.hpp>
 
@@ -11,7 +13,8 @@ AbonentController::AbonentController()
       enpoindsMap({
           {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
           {"/end-call", [this](RequestType&& req) { return this->endCall(std::move(req)); }},
-      })
+      }),
+      simulation(std::make_shared<AbonentSimulation>(weak_from_this()))
 {
 }
 
@@ -41,14 +44,16 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
         const std::string phone = requestBody.at("phone");
 
         callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
+        //simulation->
 
         http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
         res.set(http::field::content_type, "text/plain");
+        res.prepare_payload();
         return res;
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
 }
@@ -67,16 +72,17 @@ AbonentController::ResponceType AbonentController::endCall(RequestType&& req) co
 
         http::response<http::string_body> res(http::status::ok, req.version(), "Call was ended");
         res.set(http::field::content_type, "text/plain");
+        res.prepare_payload();
         return res;
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
     catch (const CCenter::CallDetailRecordError& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return serverError(std::move(req), "Server error");
     }
 }

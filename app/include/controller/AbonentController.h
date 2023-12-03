@@ -8,8 +8,10 @@
 namespace Log = log4cplus;
 
 class CallCenter;
+class Abonent;
+class AbonentSimulation;
 
-class AbonentController : public IController
+class AbonentController : public IController, std::enable_shared_from_this<AbonentController>
 {
 public:
 
@@ -32,6 +34,8 @@ private:
     Log::Logger controllerLogger;
 
     const std::unordered_map<std::string, const RequestHandler> enpoindsMap;
+
+    std::shared_ptr<AbonentSimulation> simulation;
 };
 
 #endif // ABONENTCONTROLLER_H
