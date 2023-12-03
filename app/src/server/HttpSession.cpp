@@ -20,7 +20,6 @@ void HttpSession::run()
 void HttpSession::read()
 {
     parser.emplace();
-    parser->body_limit(20);
 
     stream.expires_after(std::chrono::seconds(30));
 
