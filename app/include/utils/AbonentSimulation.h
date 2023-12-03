@@ -3,25 +3,24 @@
 
 #include "Types.h"
 
-class AbonentController;
 class Abonent;
+class CallCenter;
 
 class AbonentSimulation
 {
 public:
 
-    explicit AbonentSimulation(std::weak_ptr<const AbonentController> controller);
+    explicit AbonentSimulation(std::shared_ptr<CallCenter> callCenter);
 
-    void addAbonent(std::string phone, IdType callId);
-    void removeAbonent(IdType callId);
+    void onRegisterCall(IdType callId, std::string phone);
+    void onResponse(IdType callId);
+    void onEndCall(IdType callId);
 
 private:
 
     std::map<IdType, Abonent> abonents;
 
-    std::weak_ptr<const AbonentController> controller;
-
-    mutable std::mutex mutex;
+    std::shared_ptr<CallCenter> callCenter;
 };
 
 #endif // ABONENTSIMULATION_H
