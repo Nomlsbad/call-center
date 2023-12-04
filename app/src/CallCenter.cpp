@@ -2,12 +2,14 @@
 
 #include "CallCenter.h"
 
-CallCenter::CallCenter(size_t queueSize, size_t operatorsSize)
-    : queueSize(queueSize),
-      availableOperators(operatorsSize),
+#include <config/CallCenterConfig.h>
+
+CallCenter::CallCenter(const CallCenterConfig& config)
+    : queueSize(config.getQueueSize()),
+      availableOperators(config.getOperators()),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger")))
 {
-    for (size_t i = 0; i < operatorsSize; ++i)
+    for (size_t i = 0; i < config.getOperators(); ++i)
     {
         Operator newOperator;
         const IdType operatorId = newOperator.getId();

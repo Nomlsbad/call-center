@@ -1,11 +1,19 @@
 #include "server/Serever.h"
+
+#include "CallCenter.h"
+#include "config/CallCenterConfig.h"
+#include "config/ServerConfig.h"
 #include "controller/AbonentController.h"
 #include "server/Listener.h"
 
 #include <log4cplus/loggingmacros.h>
 
-Serever::Serever()
-    : controller(std::make_shared<AbonentController>()),
+Serever::Serever(const ServerConfig& config)
+    : address(net::ip::make_address(config.getHost())),
+      port(config.getPort()),
+      threads(config.getThreads()),
+      callCenter(std::make_shared<CallCenter>(CallCenterConfig())),
+      controller(std::make_shared<AbonentController>(callCenter)),
       ioContext(threads),
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))

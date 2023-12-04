@@ -9,6 +9,7 @@
 #include "CallDetail.h"
 #include "Operator.h"
 
+class CallCenterConfig;
 
 namespace Log = log4cplus;
 
@@ -17,7 +18,7 @@ class CallCenter
 {
 public:
 
-    CallCenter(size_t queueSize, size_t operatorsSize);
+    explicit CallCenter(const CallCenterConfig& config);
 
     CallCenter(const CallCenter& callCenter) = delete;
     CallCenter(CallCenter&& callCenter) = delete;

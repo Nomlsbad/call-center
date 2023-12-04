@@ -5,8 +5,8 @@
 #include <log4cplus/loggingmacros.h>
 #include <nlohmann/json.hpp>
 
-AbonentController::AbonentController()
-    : callCenter(std::make_shared<CallCenter>(10, 5)),
+AbonentController::AbonentController(std::weak_ptr<CallCenter> callCenter)
+    : callCenter(std::move(callCenter)),
       controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
       enpoindsMap({
           {"/register-call", [this](RequestType&& req) { return this->registerCall(std::move(req)); }},
@@ -40,10 +40,11 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
         json requestBody = json::parse(req.body());
         const std::string phone = requestBody.at("phone");
 
-        callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
+        callCenter.lock()->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
 
         http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
         res.set(http::field::content_type, "text/plain");
+        res.prepare_payload();
         return res;
     }
     catch (const json::exception& e)
@@ -63,10 +64,11 @@ AbonentController::ResponceType AbonentController::endCall(RequestType&& req) co
         const IdType callId = requestBody.at("callId");
         const CallEndingStatus callEndingStatus = requestBody.at("status");
 
-        callCenter->endCall(callId, callEndingStatus, boost::posix_time::microsec_clock::local_time());
+        callCenter.lock()->endCall(callId, callEndingStatus, boost::posix_time::microsec_clock::local_time());
 
         http::response<http::string_body> res(http::status::ok, req.version(), "Call was ended");
         res.set(http::field::content_type, "text/plain");
+        res.prepare_payload();
         return res;
     }
     catch (const json::exception& e)
