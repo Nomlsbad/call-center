@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "CallCenter.h"
+#include "utils/Exceptions.h"
 
 #include <config/CallCenterConfig.h>
 
@@ -24,22 +25,32 @@ CallCenter::CallCenter(const CallCenterConfig& config)
 
 void CallCenter::registerCall(IdType& callId, const std::string& phone, Date date)
 {
+    std::lock_guard callCenterLock(callCenterMutex);
+
+    const bool alreadyInQueue =
+        std::ranges::any_of(calls, [&phone](const auto& pair) { return pair.second.getPhone() == phone; });
+    if (alreadyInQueue)
+    {
+        LOG4CPLUS_WARN(callCenterLogger, "Call Center: call was rejected. You're already in queue!");
+        throw CCenter::AlreadyInQueue("Call was rejected. You're already in queue!");
+    }
+
     CallDetail callDetail(phone);
+
+    if (isQueueFull())
+    {
+        LOG4CPLUS_WARN(callCenterLogger, "Call Center: call was rejected. Queue is full");
+        callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
+        makeCallDetailRecord(callDetail);
+
+        throw CCenter::Overload("Call was rejected. Queue is full");
+    }
+
     callDetail.recordReceiption(date);
     callId = callDetail.getId();
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was accepted for registration");
 
-    std::lock_guard callCenterLock(callCenterMutex);
-
     onRegisterCallSignature(callId, phone);
-
-    if (isQueueFull())
-    {
-        LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was rejected. Queue is full");
-        callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
-        makeCallDetailRecord(callDetail);
-        return;
-    }
 
     awaitingCalls.push_back(callId);
     calls.emplace(callId, std::move(callDetail));
