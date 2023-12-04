@@ -48,8 +48,6 @@ private:
 
 private:
 
-    std::string journalPath = "../../resurses/journal.txt";
-
     size_t queueSize = 0;
 
     std::deque<IdType> awaitingCalls;
@@ -61,6 +59,7 @@ private:
     mutable std::mutex callCenterMutex;
 
     Log::Logger callCenterLogger;
+    Log::Logger CDRLogger;
 };
 
 #endif // CALLCENTER_H

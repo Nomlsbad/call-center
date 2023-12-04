@@ -7,7 +7,8 @@
 CallCenter::CallCenter(const CallCenterConfig& config)
     : queueSize(config.getQueueSize()),
       availableOperators(config.getOperators()),
-      callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger")))
+      callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
+      CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))
 {
     for (size_t i = 0; i < config.getOperators(); ++i)
     {
@@ -26,8 +27,7 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
     callId = callDetail.getId();
-    LOG4CPLUS_INFO(callCenterLogger,
-                   "Call Center: Call[" << callId << "]: call was accepted for registration");
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was accepted for registration");
 
     std::lock_guard callCenterLock(callCenterMutex);
 
@@ -35,8 +35,7 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
 
     if (isQueueFull())
     {
-        LOG4CPLUS_INFO(callCenterLogger,
-                       "Call Center: Call[" << callId << "]: call was rejected. Queue is full");
+        LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was rejected. Queue is full");
         callDetail.recordEnding(CallEndingStatus::OVERLOAD, date);
         makeCallDetailRecord(callDetail);
         return;
@@ -106,10 +105,7 @@ void CallCenter::tryToAcceptCall()
 
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
 {
-    std::ofstream out;
-    out.open(journalPath, std::ios::app);
-    out << callDetail.toString() << "\n";
-    out.close();
+    LOG4CPLUS_INFO(CDRLogger, callDetail.toString());
 }
 
 bool CallCenter::isQueueFull() const
