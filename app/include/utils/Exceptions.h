@@ -30,12 +30,12 @@ private:
     std::string reason = "";
 };
 
-class CallDetailRecordError : public Exception
+class Overload : public Exception
 {
     using Exception::Exception;
 };
 
-class Overload : public Exception
+class AlreadyInQueue : public Exception
 {
     using Exception::Exception;
 };
