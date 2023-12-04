@@ -18,16 +18,6 @@ public:
 
     explicit CallDetail(std::string phone);
 
-    CallDetail(const CallDetail& cdr) = delete;
-    CallDetail(CallDetail&& cdr) = default;
-
-    CallDetail& operator=(const CallDetail& cdr) = delete;
-    CallDetail& operator=(CallDetail&& cdr) = default;
-
-    ~CallDetail() = default;
-
-public:
-
     void recordReceiption(Date date);
     void recordResponse(IdType acceptedOperatotId, Date date);
     void recordEnding(CallEndingStatus status, Date date);
@@ -36,6 +26,7 @@ public:
 
     [[nodiscard]] IdType getId() const;
     [[nodiscard]] IdType getOperatorId() const;
+    [[nodiscard]] std::string getPhone() const;
 
 private:
 
@@ -44,16 +35,6 @@ private:
 private:
 
     static IdType nextId;
-
-    enum RecordingStatus
-    {
-        CREATED = 0,
-        ACCEPTED = 1,
-        RESPONDED = 2,
-        ENDED = 3
-    };
-
-    RecordingStatus recordingStatus = CREATED;
 
 private:
 

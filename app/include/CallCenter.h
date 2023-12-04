@@ -9,6 +9,7 @@
 #include "CallDetail.h"
 #include "Operator.h"
 
+class CallCenterConfig;
 
 namespace Log = log4cplus;
 
@@ -17,7 +18,7 @@ class CallCenter
 {
 public:
 
-    CallCenter(size_t queueSize, size_t operatorsSize);
+    explicit CallCenter(const CallCenterConfig& config);
 
     CallCenter(const CallCenter& callCenter) = delete;
     CallCenter(CallCenter&& callCenter) = delete;
@@ -27,9 +28,15 @@ public:
 
 public:
 
-    void registerCall(const std::string& phone, Date date);
+    void registerCall(IdType& callId, const std::string& phone, Date date);
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
+
+public:
+
+    std::function<void(IdType, std::string)> onRegisterCallSignature;
+    std::function<void(IdType)> onResponseCallSignature;
+    std::function<void(IdType)> onEndCallSignature;
 
 private:
 
@@ -40,8 +47,6 @@ private:
     void makeCallDetailRecord(const CallDetail& callDetail) const;
 
 private:
-
-    std::string journalPath = "../../resurses/journal.txt";
 
     size_t queueSize = 0;
 
@@ -54,6 +59,7 @@ private:
     mutable std::mutex callCenterMutex;
 
     Log::Logger callCenterLogger;
+    Log::Logger CDRLogger;
 };
 
 #endif // CALLCENTER_H
