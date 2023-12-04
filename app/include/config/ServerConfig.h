@@ -1,13 +1,16 @@
 #ifndef SERVERCONFIG_H
 #define SERVERCONFIG_H
 
-#include <nlohmann/json.hpp>
+#include <string>
 
 class ServerConfig
 {
 public:
 
     ServerConfig();
+    explicit ServerConfig(const std::string& path);
+
+    void readFromJson(const std::string& path);
 
     [[nodiscard]] std::string getHost() const;
     [[nodiscard]] unsigned short getPort() const;
@@ -15,15 +18,9 @@ public:
 
 private:
 
-    std::string configPath;
-
     std::string host;
     unsigned short port;
     int threads;
-
-public:
-
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(ServerConfig, host, port, threads);
 };
 
 #endif // SERVERCONFIG_H

@@ -5,14 +5,15 @@
 using json = nlohmann::json;
 
 UserConfig::UserConfig()
-    :configPath("../../config.json")
+    : UserConfig("../../config.json")
 {
-    std::ifstream configFile(configPath);
+}
 
+UserConfig::UserConfig(const std::string& path)
+{
     try
     {
-        json config = json::parse(configFile);
-        *this = config["user"];
+        readFromJson(path);
     }
     catch (const json::exception& e)
     {
@@ -21,6 +22,17 @@ UserConfig::UserConfig()
         minTalkingTime = "00:00:00";
         maxTalkingTime = "00:00:00";
     }
+}
+
+void UserConfig::readFromJson(const std::string& path)
+{
+    std::ifstream configFile(path);
+    json config = json::parse(configFile);
+
+    minWaitingTime = config["user"]["minWaitingTime"];
+    maxWaitingTime = config["user"]["maxWaitingTime"];
+    minTalkingTime = config["user"]["minTalkingTime"];
+    maxTalkingTime = config["user"]["maxTalkingTime"];
 }
 
 std::string UserConfig::getMinWaitingTime() const

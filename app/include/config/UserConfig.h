@@ -8,6 +8,9 @@ class UserConfig
 public:
 
     UserConfig();
+    explicit UserConfig(const std::string& path);
+
+    void readFromJson(const std::string& path);
 
     [[nodiscard]] std::string getMinWaitingTime() const;
     [[nodiscard]] std::string getMaxWaitingTime() const;
@@ -16,16 +19,10 @@ public:
 
 private:
 
-    std::string configPath;
-
     std::string minWaitingTime;
     std::string maxWaitingTime;
     std::string minTalkingTime;
     std::string maxTalkingTime;
-
-public:
-
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(UserConfig, minWaitingTime, minWaitingTime, minTalkingTime, maxTalkingTime);
 
 };
 

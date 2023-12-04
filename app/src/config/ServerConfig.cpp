@@ -2,17 +2,20 @@
 
 #include <fstream>
 
+#include <nlohmann/json.hpp>
+
 using json = nlohmann::json;
 
 ServerConfig::ServerConfig()
-    : configPath("../../config.json")
+    : ServerConfig("../../config.json")
 {
-    std::ifstream configFile(configPath);
+}
 
+ServerConfig::ServerConfig(const std::string& path)
+{
     try
     {
-        json config = json::parse(configFile);
-        *this = config["server"];
+        readFromJson(path);
     }
     catch (const json::exception& e)
     {
@@ -20,6 +23,16 @@ ServerConfig::ServerConfig()
         port = 37904;
         threads = 1;
     }
+}
+
+void ServerConfig::readFromJson(const std::string& path)
+{
+    std::ifstream configFile(path);
+    json config = json::parse(configFile);
+
+    host = config["server"]["host"];
+    port = config["server"]["port"];
+    threads = config["server"]["threads"];
 }
 
 std::string ServerConfig::getHost() const
