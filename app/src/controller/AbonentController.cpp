@@ -40,7 +40,7 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
         json requestBody = json::parse(req.body());
         const std::string phone = requestBody.at("phone");
 
-        callCenter.lock()->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
+        callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
 
         http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
         res.set(http::field::content_type, "text/plain");
@@ -49,7 +49,7 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
 }
@@ -73,12 +73,12 @@ AbonentController::ResponceType AbonentController::endCall(RequestType&& req) co
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
     catch (const CCenter::CallDetailRecordError& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return serverError(std::move(req), "Server error");
     }
 }
