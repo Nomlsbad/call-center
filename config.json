@@ -1,0 +1,19 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 1234,
+    "threads": 2
+  },
+
+  "callCenter": {
+    "queueSize": 5,
+    "operators": 10
+  },
+
+  "user": {
+    "minWaitingTime": "00:00:01",
+    "maxWaitingTime": "00:00:05",
+    "minTalkingTime": "00:00:03",
+    "maxTalkingTime": "00:00:08"
+  }
+}
