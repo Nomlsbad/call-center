@@ -17,7 +17,7 @@ public:
 
 public:
 
-    AbonentController();
+    explicit AbonentController(std::weak_ptr<CallCenter> callCenter);
     ~AbonentController() override = default;
 
     ResponceType handleRequest(RequestType&& req) const override;

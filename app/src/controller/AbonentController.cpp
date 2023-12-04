@@ -40,7 +40,7 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
         json requestBody = json::parse(req.body());
         const std::string phone = requestBody.at("phone");
 
-        callCenter->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
+        callCenter.lock()->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
 
         http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
         res.set(http::field::content_type, "text/plain");
