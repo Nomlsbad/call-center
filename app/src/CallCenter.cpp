@@ -67,7 +67,7 @@ void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
 
     if (!calls.contains(callId))
     {
-        LOG4CPLUS_WARN(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
+        LOG4CPLUS_ERROR(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
         return;
     }
 
@@ -84,7 +84,7 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
 
     if (!calls.contains(callId))
     {
-        LOG4CPLUS_WARN(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
+        LOG4CPLUS_ERROR(callCenterLogger, "Call Center: Call[" << callId << "]: call with this id doesn't exist!");
         return;
     }
 
@@ -102,13 +102,22 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
 
 void CallCenter::tryToAcceptCall()
 {
-    if (availableOperators.empty() || awaitingCalls.empty()) return;
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Trying to accept call...");
+    if (availableOperators.empty() || awaitingCalls.empty())
+    {
+        LOG4CPLUS_INFO(callCenterLogger, "Call Center: Accepting call failed. Awaiting calls: "
+                                             << awaitingCalls.size()
+                                             << ", available operators: " << availableOperators.size());
+        return;
+    }
 
     const IdType operatorId = availableOperators.front();
     const IdType callId = awaitingCalls.front();
 
     Operator& availableOperator = operators.at(operatorId);
     availableOperator.acceptCall(callId);
+    LOG4CPLUS_INFO(callCenterLogger,
+                   "Call Center: Call[" << callId << "]: call was accepted by operator[" << operatorId << "]");
 
     availableOperators.pop_front();
     awaitingCalls.pop_front();
