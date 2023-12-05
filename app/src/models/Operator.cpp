@@ -13,7 +13,7 @@ void Operator::connect(std::weak_ptr<CallCenter> center, IdType operatorId)
 
 void Operator::acceptCall(IdType callId)
 {
-    if (!callCenter.expired())
+    if (callCenter.expired())
     {
         LOG4CPLUS_WARN(operatorLogger,
                        "Operator: Operator[" << id << "]: this operator doesn't connect to call center");
@@ -21,7 +21,7 @@ void Operator::acceptCall(IdType callId)
     }
 
     callCenter.lock()->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
-    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: operator was accepted call");
+    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: operator accepted the call[" << callId << "]");
 }
 
 IdType Operator::getId() const
