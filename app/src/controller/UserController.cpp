@@ -42,7 +42,7 @@ UserController::ResponceType UserController::registerCall(RequestType&& req) con
 
         callCenter.lock()->registerCall(callId, phone, boost::posix_time::microsec_clock::local_time());
 
-        http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId));
+        http::response<http::string_body> res(http::status::ok, req.version(), std::to_string(callId) + "\n");
         res.set(http::field::content_type, "text/plain");
         res.prepare_payload();
         return res;
@@ -76,7 +76,7 @@ UserController::ResponceType UserController::endCall(RequestType&& req) const
 
         callCenter.lock()->endCall(callId, callEndingStatus, boost::posix_time::microsec_clock::local_time());
 
-        http::response<http::string_body> res(http::status::ok, req.version(), "Call was ended");
+        http::response<http::string_body> res(http::status::ok, req.version(), "Call was ended\n");
         res.set(http::field::content_type, "text/plain");
         res.prepare_payload();
         return res;
@@ -85,5 +85,10 @@ UserController::ResponceType UserController::endCall(RequestType&& req) const
     {
         LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
         return badRequest(std::move(req), e.what());
+    }
+    catch (const std::out_of_range& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
+        return notFound(std::move(req), "Call with this CallId doesn't exist");
     }
 }
