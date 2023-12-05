@@ -20,7 +20,7 @@ IController::ResponceType IController::errorResponce(RequestType&& req, std::str
     http::response<http::string_body> res{status, req.version()};
     res.set(http::field::content_type, "text/plain");
     res.keep_alive(req.keep_alive());
-    res.body() = std::move(what);
+    res.body() = std::move(what) + "\n";
     res.prepare_payload();
     return res;
 }
