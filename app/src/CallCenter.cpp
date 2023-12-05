@@ -7,19 +7,13 @@
 
 CallCenter::CallCenter(const CallCenterConfig& config)
     : queueSize(config.getQueueSize()),
-      availableOperators(config.getOperators()),
+      freeOperatorId(1),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
       CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))
 {
     for (size_t i = 0; i < config.getOperators(); ++i)
     {
-        Operator newOperator;
-        const IdType operatorId = newOperator.getId();
-
-        newOperator.connectTo(this);
-
-        availableOperators[i] = operatorId;
-        operators.emplace(operatorId, std::move(newOperator));
+        connectOperator();
     }
 }
 
@@ -121,6 +115,18 @@ void CallCenter::tryToAcceptCall()
 
     availableOperators.pop_front();
     awaitingCalls.pop_front();
+}
+
+void CallCenter::connectOperator()
+{
+    Operator newOperator;
+    const IdType operatorId = freeOperatorId++;
+
+    newOperator.connect(weak_from_this(), operatorId);
+
+    std::lock_guard lock(callCenterMutex);
+    operators.emplace(operatorId, std::move(newOperator));
+    availableOperators.push_back(operatorId);
 }
 
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const
