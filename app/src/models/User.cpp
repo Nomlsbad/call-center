@@ -23,27 +23,41 @@ User::User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCente
 
 void User::wait() const
 {
-    std::thread(
-        [this]()
+    auto self = this;
+    std::thread waiting(
+        [self]
         {
-            const std::chrono::milliseconds msWaitingTime(waitingTime.total_milliseconds());
-            std::this_thread::sleep_for(msWaitingTime);
+            if (!self) return;
 
-            if (wasResponded) return;
-            callCenter.lock()->endCall(callId, CallEndingStatus::TIMEOUT, boost::posix_time::microsec_clock::local_time());
-        }).detach();
+            const std::shared_ptr callCenter = self->callCenter.lock();
+            const IdType callId = self->getCallId();
+            const std::chrono::milliseconds waitingTime(self->waitingTime.total_milliseconds());
+
+            std::this_thread::sleep_for(waitingTime);
+            if (!self || self->wasResponded || !callCenter) return;
+
+            callCenter->endCall(callId, CallEndingStatus::TIMEOUT, boost::posix_time::microsec_clock::local_time());
+        });
+    waiting.detach();
 }
 
 void User::talk() const
 {
-    std::thread(
-        [this]()
+    auto self = this;
+    std::thread talking(
+        [self]
         {
-            const std::chrono::milliseconds millisecondsTalkingTime(talkingTime.total_milliseconds());
-            std::this_thread::sleep_for(millisecondsTalkingTime);
+            if (!self) return;
+            const std::shared_ptr callCenter = self->callCenter.lock();
+            const IdType callId = self->getCallId();
+            const std::chrono::milliseconds talkingTime(self->talkingTime.total_milliseconds());
 
-            callCenter.lock()->endCall(callId, CallEndingStatus::OK, boost::posix_time::microsec_clock::local_time());
-        }).detach();
+            std::this_thread::sleep_for(talkingTime);
+            if (!callCenter) return;
+
+            callCenter->endCall(callId, CallEndingStatus::OK, boost::posix_time::microsec_clock::local_time());
+        });
+    talking.detach();
 }
 
 TimeDuration User::getRandomDuration(const TimeDuration& min, const TimeDuration& max)
@@ -68,4 +82,5 @@ std::string User::getPhone() const
 void User::response()
 {
     wasResponded = true;
+    talk();
 }

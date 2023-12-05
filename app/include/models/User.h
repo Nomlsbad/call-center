@@ -7,7 +7,7 @@ enum class CallEndingStatus : uint8_t;
 
 class CallCenter;
 
-class User
+class User : public std::enable_shared_from_this<User>
 {
 public:
 
