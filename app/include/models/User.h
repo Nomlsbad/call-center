@@ -11,7 +11,7 @@ class User
 {
 public:
 
-    explicit User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
+    User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
 
     [[nodiscard]] IdType getCallId() const;
     [[nodiscard]] std::string getPhone() const;
