@@ -7,7 +7,7 @@
 #include <log4cplus/log4cplus.h>
 
 #include "CallDetail.h"
-#include "Operator.h"
+#include "models/Operator.h"
 
 class CallCenterConfig;
 
