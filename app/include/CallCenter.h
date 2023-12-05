@@ -14,7 +14,7 @@ class CallCenterConfig;
 namespace Log = log4cplus;
 
 
-class CallCenter : std::enable_shared_from_this<CallCenter>
+class CallCenter : public std::enable_shared_from_this<CallCenter>
 {
 public:
 
@@ -43,6 +43,12 @@ public:
 private:
 
     [[nodiscard]] bool isQueueFull() const;
+    [[nodiscard]] bool IsRegistred(const std::string& phone) const;
+    [[nodiscard]] bool IsRegistred(IdType callId) const;
+    [[nodiscard]] CallDetail& getCallDetail(IdType callId);
+
+    void addCallToQueue(CallDetail&& callDetail);
+    void releaseOperator(IdType operatorId, IdType callId);
 
     void tryToAcceptCall();
 

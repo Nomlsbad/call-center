@@ -17,7 +17,7 @@ class Serever
 {
 public:
 
-    explicit Serever(const ServerConfig& config);
+    explicit Serever();
     ~Serever() = default;
 
     void run();
