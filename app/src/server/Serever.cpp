@@ -2,7 +2,7 @@
 
 #include "CallCenter.h"
 #include "config/Configuration.h"
-#include "controller/AbonentController.h"
+#include "controller/UserController.h"
 #include "server/Listener.h"
 
 #include <log4cplus/loggingmacros.h>
@@ -12,21 +12,23 @@ Serever::Serever()
       port(Configuration::get<ServerConfig>().getPort()),
       threads(Configuration::get<ServerConfig>().getThreads()),
       callCenter(std::make_shared<CallCenter>()),
-      controller(std::make_shared<AbonentController>(callCenter)),
+      controller(std::make_shared<UserController>(callCenter)),
       ioContext(threads),
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
-    const size_t operators = Configuration::get<CallCenterConfig>().getOperators();
-    for (size_t i = 0; i < operators; ++i)
-    {
-        callCenter->connectOperator();
-    }
 }
 
 void Serever::run()
 {
     LOG4CPLUS_INFO(serverLogger, "Server: server was run");
+
+    const size_t operators = Configuration::get<CallCenterConfig>().getOperators();
+    for (size_t i = 0; i < operators; ++i)
+    {
+        callCenter->connectOperator();
+    }
+
     listener->run();
 
     net::io_context& ioContextRef = ioContext;

@@ -1,11 +1,11 @@
-#include "controller/AbonentController.h"
+#include "controller/UserController.h"
 #include "CallCenter.h"
 
 #include <utils/Exceptions.h>
 #include <log4cplus/loggingmacros.h>
 #include <nlohmann/json.hpp>
 
-AbonentController::AbonentController(std::weak_ptr<CallCenter> callCenter)
+UserController::UserController(std::weak_ptr<CallCenter> callCenter)
     : callCenter(std::move(callCenter)),
       controllerLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger"))),
       enpoindsMap({
@@ -15,7 +15,7 @@ AbonentController::AbonentController(std::weak_ptr<CallCenter> callCenter)
 {
 }
 
-AbonentController::ResponceType AbonentController::handleRequest(RequestType&& req) const
+UserController::ResponceType UserController::handleRequest(RequestType&& req) const
 {
     const std::string& endpoint = req.target();
     LOG4CPLUS_DEBUG(controllerLogger, "Handling request was begun");
@@ -30,7 +30,7 @@ AbonentController::ResponceType AbonentController::handleRequest(RequestType&& r
     }
 }
 
-AbonentController::ResponceType AbonentController::registerCall(RequestType&& req) const
+UserController::ResponceType UserController::registerCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/register-call");
 
@@ -49,22 +49,22 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
     catch (const CCenter::AlreadyInQueue& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
     catch (const CCenter::Overload& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
         return serverError(std::move(req), e.what());
     }
 }
 
-AbonentController::ResponceType AbonentController::endCall(RequestType&& req) const
+UserController::ResponceType UserController::endCall(RequestType&& req) const
 {
     LOG4CPLUS_DEBUG(controllerLogger, "/end-call");
 
@@ -83,7 +83,7 @@ AbonentController::ResponceType AbonentController::endCall(RequestType&& req) co
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "UserController: " << e.what());
         return badRequest(std::move(req), e.what());
     }
 }
