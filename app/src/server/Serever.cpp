@@ -28,6 +28,7 @@ void Serever::run()
     {
         callCenter->connectOperator();
     }
+    callCenter->run();
 
     listener->run();
 
