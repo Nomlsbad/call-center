@@ -9,7 +9,7 @@ namespace Log = log4cplus;
 
 class CallCenter;
 
-class AbonentController : public IController
+class AbonentController : public IController, std::enable_shared_from_this<AbonentController>
 {
 public:
 
@@ -17,7 +17,7 @@ public:
 
 public:
 
-    AbonentController();
+    explicit AbonentController(std::weak_ptr<CallCenter> callCenter);
     ~AbonentController() override = default;
 
     ResponceType handleRequest(RequestType&& req) const override;
@@ -27,7 +27,7 @@ public:
 
 private:
 
-    std::shared_ptr<CallCenter> callCenter;
+    std::weak_ptr<CallCenter> callCenter;
 
     Log::Logger controllerLogger;
 

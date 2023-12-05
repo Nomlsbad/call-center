@@ -8,24 +8,27 @@
 
 namespace Log = log4cplus;
 
+class CallCenter;
 class IController;
 class Listener;
+class ServerConfig;
 
 class Serever
 {
 public:
 
-    Serever();
+    explicit Serever(const ServerConfig& config);
     ~Serever() = default;
 
     void run();
 
 private:
 
-    net::ip::address address = net::ip::make_address("127.0.0.1");
-    unsigned short port = 1234;
-    int threads = 2;
+    net::ip::address address;
+    unsigned short port;
+    int threads;
 
+    std::shared_ptr<CallCenter> callCenter;
     std::shared_ptr<IController> controller;
 
     net::io_context ioContext;
