@@ -32,7 +32,7 @@ private:
     std::string reason = "";
 };
 
-DECLARE_EXCEPTION(CallDetailRecordError, Exception);
+DECLARE_EXCEPTION(AlreadyInQueue, Exception);
 DECLARE_EXCEPTION(Overload, Exception);
 DECLARE_EXCEPTION(UnkownConfiguration, Exception);
 

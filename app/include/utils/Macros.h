@@ -3,7 +3,7 @@
 
 #define GET_CONFIG(T) \
 template<> \
-T& Configuration::get<T>() \
+T& get<T>() \
 { \
 static T config; \
 return config; \
