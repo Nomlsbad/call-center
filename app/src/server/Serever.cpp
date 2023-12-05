@@ -17,11 +17,6 @@ Serever::Serever()
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
-    const size_t operators = Configuration::get<CallCenterConfig>().getOperators();
-    for (size_t i = 0; i < operators; ++i)
-    {
-        callCenter->connectOperator();
-    }
 }
 
 void Serever::run()
@@ -33,6 +28,7 @@ void Serever::run()
     {
         callCenter->connectOperator();
     }
+    callCenter->run();
 
     listener->run();
 
