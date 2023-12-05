@@ -11,7 +11,7 @@ Serever::Serever()
     : address(net::ip::make_address(Configuration::get<ServerConfig>().getHost())),
       port(Configuration::get<ServerConfig>().getPort()),
       threads(Configuration::get<ServerConfig>().getThreads()),
-      callCenter(std::make_shared<CallCenter>(CallCenterConfig())),
+      callCenter(std::make_shared<CallCenter>()),
       controller(std::make_shared<AbonentController>(callCenter)),
       ioContext(threads),
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),

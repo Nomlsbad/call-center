@@ -1,6 +1,8 @@
 #include "CallCenter.h"
+#include "config/Configuration.h"
 #include "models/Abonent.h"
 
+#include <boost/date_time/posix_time/time_parsers.hpp>
 #include <thread>
 
 Abonent::Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter)
@@ -8,12 +10,14 @@ Abonent::Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> cal
       phone(std::move(phone)),
       callCenter(std::move(callCenter))
 {
-    const TimeDuration minWaitingTime(0, 0, 1);
-    const TimeDuration maxWaitingTime(0, 0, 5);
+    using boost::posix_time::duration_from_string;
+
+    const TimeDuration minWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMinWaitingTime());
+    const TimeDuration maxWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMaxWaitingTime());
     waitingTime = getRandomDuration(minWaitingTime, maxWaitingTime);
 
-    const TimeDuration minTalkingTime(0, 0, 3);
-    const TimeDuration maxTalkingTime(0, 0, 10);
+    const TimeDuration minTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMinTalkingTime());
+    const TimeDuration maxTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMaxTalkingTime());
     talkingTime = getRandomDuration(minTalkingTime, maxTalkingTime);
 }
 

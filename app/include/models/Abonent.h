@@ -11,7 +11,7 @@ class Abonent
 {
 public:
 
-    explicit Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
+    Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
 
     [[nodiscard]] IdType getCallId() const;
     [[nodiscard]] std::string getPhone() const;

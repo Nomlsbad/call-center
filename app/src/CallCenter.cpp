@@ -1,12 +1,9 @@
-#include <fstream>
-
 #include "CallCenter.h"
+#include "config/Configuration.h"
 #include "utils/Exceptions.h"
 
-#include <config/CallCenterConfig.h>
-
-CallCenter::CallCenter(const CallCenterConfig& config)
-    : queueSize(config.getQueueSize()),
+CallCenter::CallCenter()
+    : queueSize(Configuration::get<CallCenterConfig>().getQueueSize()),
       freeOperatorId(1),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
       CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))

@@ -18,7 +18,7 @@ class CallCenter : public std::enable_shared_from_this<CallCenter>
 {
 public:
 
-    explicit CallCenter(const CallCenterConfig& config);
+    CallCenter();
 
     CallCenter(const CallCenter& callCenter) = delete;
     CallCenter(CallCenter&& callCenter) = delete;
