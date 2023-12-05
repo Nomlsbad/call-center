@@ -1,6 +1,8 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 
+#include "utils/Macros.h"
+
 namespace CCenter
 {
 
@@ -30,15 +32,9 @@ private:
     std::string reason = "";
 };
 
-class Overload : public Exception
-{
-    using Exception::Exception;
-};
-
-class AlreadyInQueue : public Exception
-{
-    using Exception::Exception;
-};
+DECLARE_EXCEPTION(CallDetailRecordError, Exception);
+DECLARE_EXCEPTION(Overload, Exception);
+DECLARE_EXCEPTION(UnkownConfiguration, Exception);
 
 } // namespace ccenter
 
