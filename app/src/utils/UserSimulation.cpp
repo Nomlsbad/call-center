@@ -3,8 +3,8 @@
 #include "models/User.h"
 #include "utils/UserSimulation.h"
 
-UserSimulation::UserSimulation(std::shared_ptr<CallCenter> center)
-    : callCenter(std::move(center))
+UserSimulation::UserSimulation(std::weak_ptr<CallCenter> callCenter)
+    : callCenter(std::move(callCenter))
 {
 }
 
