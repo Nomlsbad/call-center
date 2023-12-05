@@ -1,5 +1,5 @@
-#ifndef ABONENTCONTROLLER_H
-#define ABONENTCONTROLLER_H
+#ifndef USERCONTROLLER_H
+#define USERCONTROLLER_H
 
 #include "controller/IController.h"
 
@@ -9,7 +9,7 @@ namespace Log = log4cplus;
 
 class CallCenter;
 
-class AbonentController : public IController
+class UserController : public IController
 {
 public:
 
@@ -17,8 +17,8 @@ public:
 
 public:
 
-    explicit AbonentController(std::weak_ptr<CallCenter> callCenter);
-    ~AbonentController() override = default;
+    explicit UserController(std::weak_ptr<CallCenter> callCenter);
+    ~UserController() override = default;
 
     ResponceType handleRequest(RequestType&& req) const override;
 
@@ -34,4 +34,4 @@ private:
     const std::unordered_map<std::string, const RequestHandler> enpoindsMap;
 };
 
-#endif // ABONENTCONTROLLER_H
+#endif // USERCONTROLLER_H

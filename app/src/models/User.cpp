@@ -1,23 +1,27 @@
 #include "CallCenter.h"
-#include "models/Abonent.h"
+#include "models/User.h"
+#include "config/Configuration.h"
 
+#include <boost/date_time/posix_time/time_parsers.hpp>
 #include <thread>
 
-Abonent::Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter)
+User::User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter)
     : callId(callId),
       phone(std::move(phone)),
       callCenter(std::move(callCenter))
 {
-    const TimeDuration minWaitingTime(0, 0, 1);
-    const TimeDuration maxWaitingTime(0, 0, 5);
+    using boost::posix_time::duration_from_string;
+
+    const TimeDuration minWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMinWaitingTime());
+    const TimeDuration maxWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMaxWaitingTime());
     waitingTime = getRandomDuration(minWaitingTime, maxWaitingTime);
 
-    const TimeDuration minTalkingTime(0, 0, 3);
-    const TimeDuration maxTalkingTime(0, 0, 10);
+    const TimeDuration minTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMinTalkingTime());
+    const TimeDuration maxTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMaxTalkingTime());
     talkingTime = getRandomDuration(minTalkingTime, maxTalkingTime);
 }
 
-void Abonent::wait() const
+void User::wait() const
 {
     std::thread(
         [this]()
@@ -30,7 +34,7 @@ void Abonent::wait() const
         }).detach();
 }
 
-void Abonent::talk() const
+void User::talk() const
 {
     std::thread(
         [this]()
@@ -42,7 +46,7 @@ void Abonent::talk() const
         }).detach();
 }
 
-TimeDuration Abonent::getRandomDuration(const TimeDuration& min, const TimeDuration& max)
+TimeDuration User::getRandomDuration(const TimeDuration& min, const TimeDuration& max)
 {
     const long minDuration = min.total_milliseconds();
     const long maxDuration = max.total_milliseconds();
@@ -51,17 +55,17 @@ TimeDuration Abonent::getRandomDuration(const TimeDuration& min, const TimeDurat
     return boost::posix_time::milliseconds(randomDuration);
 }
 
-IdType Abonent::getCallId() const
+IdType User::getCallId() const
 {
     return callId;
 }
 
-std::string Abonent::getPhone() const
+std::string User::getPhone() const
 {
     return phone;
 }
 
-void Abonent::response()
+void User::response()
 {
     wasResponded = true;
 }

@@ -1,16 +1,16 @@
-#ifndef ABONENTSIMULATION_H
-#define ABONENTSIMULATION_H
+#ifndef USERSIMULATION_H
+#define USERSIMULATION_H
 
 #include "Types.h"
 
-class Abonent;
+class User;
 class CallCenter;
 
-class AbonentSimulation
+class UserSimulation
 {
 public:
 
-    explicit AbonentSimulation(std::shared_ptr<CallCenter> callCenter);
+    explicit UserSimulation(std::shared_ptr<CallCenter> callCenter);
 
     void onRegisterCall(IdType callId, std::string phone);
     void onResponse(IdType callId);
@@ -18,9 +18,9 @@ public:
 
 private:
 
-    std::map<IdType, Abonent> abonents;
+    std::map<IdType, User> users;
 
     std::shared_ptr<CallCenter> callCenter;
 };
 
-#endif // ABONENTSIMULATION_H
+#endif // USERSIMULATION_H

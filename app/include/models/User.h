@@ -1,5 +1,5 @@
-#ifndef ABONENT_H
-#define ABONENT_H
+#ifndef USER_H
+#define USER_H
 
 #include "Types.h"
 
@@ -7,11 +7,11 @@ enum class CallEndingStatus : uint8_t;
 
 class CallCenter;
 
-class Abonent
+class User
 {
 public:
 
-    explicit Abonent(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
+    User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCenter);
 
     [[nodiscard]] IdType getCallId() const;
     [[nodiscard]] std::string getPhone() const;
@@ -40,4 +40,4 @@ private:
     TimeDuration talkingTime;
 };
 
-#endif // ABONENT_H
+#endif // USER_H
