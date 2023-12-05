@@ -9,7 +9,7 @@
 #include "CallDetail.h"
 #include "models/Operator.h"
 
-class CallCenterConfig;
+class UserSimulation;
 
 namespace Log = log4cplus;
 
@@ -55,10 +55,12 @@ private:
     std::deque<IdType> availableOperators;
     std::map<IdType, Operator> operators;
 
-    mutable std::mutex callCenterMutex;
+    std::mutex callCenterMutex;
 
     Log::Logger callCenterLogger;
     Log::Logger CDRLogger;
+
+    std::shared_ptr<UserSimulation> simulation;
 };
 
 #endif // CALLCENTER_H

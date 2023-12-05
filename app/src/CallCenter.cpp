@@ -1,6 +1,7 @@
 #include "CallCenter.h"
 #include "config/Configuration.h"
 #include "utils/Exceptions.h"
+#include "utils/UserSimulation.h"
 
 CallCenter::CallCenter()
     : queueSize(Configuration::get<CallCenterConfig>().getQueueSize()),
@@ -12,6 +13,7 @@ CallCenter::CallCenter()
 
 void CallCenter::run()
 {
+    simulation = std::make_shared<UserSimulation>(weak_from_this());
     std::weak_ptr weakCenter = shared_from_this();
 
     std::thread queueObserver(
@@ -53,6 +55,8 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
     awaitingCalls.push_back(callId);
     calls.emplace(callId, std::move(callDetail));
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added to queue");
+
+    simulation->onRegisterCall(callId, phone);
 }
 
 void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
@@ -63,6 +67,8 @@ void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
 
     CallDetail& callDetail = calls.at(callId);
     callDetail.recordResponse(operatorId, date);
+
+    simulation->onResponse(callId);
 }
 
 void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date date)
@@ -77,20 +83,15 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
     availableOperators.push_back(callDetail.getOperatorId());
     calls.erase(callId);
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
+
+    simulation->onEndCall(callId);
 }
 
 void CallCenter::tryToAcceptCall()
 {
-    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Trying to accept call...");
     std::unique_lock callCenterLock(callCenterMutex);
 
-    if (availableOperators.empty() || awaitingCalls.empty())
-    {
-        LOG4CPLUS_INFO(callCenterLogger, "Call Center: Accepting call failed. Awaiting calls: "
-                                             << awaitingCalls.size()
-                                             << ", available operators: " << availableOperators.size());
-        return;
-    }
+    if (availableOperators.empty() || awaitingCalls.empty()) return;
 
     const IdType operatorId = availableOperators.front();
     const IdType callId = awaitingCalls.front();
