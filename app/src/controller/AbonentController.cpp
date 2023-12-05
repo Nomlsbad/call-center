@@ -49,8 +49,18 @@ AbonentController::ResponceType AbonentController::registerCall(RequestType&& re
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
+    }
+    catch (const CCenter::AlreadyInQueue& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        return badRequest(std::move(req), e.what());
+    }
+    catch (const CCenter::Overload& e)
+    {
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
+        return serverError(std::move(req), e.what());
     }
 }
 
@@ -73,12 +83,7 @@ AbonentController::ResponceType AbonentController::endCall(RequestType&& req) co
     }
     catch (const json::exception& e)
     {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
+        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: " << e.what());
         return badRequest(std::move(req), e.what());
-    }
-    catch (const CCenter::CallDetailRecordError& e)
-    {
-        LOG4CPLUS_ERROR(controllerLogger, "AbonentController: "  << e.what());
-        return serverError(std::move(req), "Server error");
     }
 }

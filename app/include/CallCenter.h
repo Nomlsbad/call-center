@@ -7,14 +7,14 @@
 #include <log4cplus/log4cplus.h>
 
 #include "CallDetail.h"
-#include "Operator.h"
+#include "models/Operator.h"
 
 class CallCenterConfig;
 
 namespace Log = log4cplus;
 
 
-class CallCenter
+class CallCenter : std::enable_shared_from_this<CallCenter>
 {
 public:
 
@@ -32,6 +32,14 @@ public:
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
+    void connectOperator();
+
+public:
+
+    std::function<void(IdType, std::string)> onRegisterCallSignature;
+    std::function<void(IdType)> onResponseCallSignature;
+    std::function<void(IdType)> onEndCallSignature;
+
 private:
 
     [[nodiscard]] bool isQueueFull() const;
@@ -42,19 +50,18 @@ private:
 
 private:
 
-    std::string journalPath = "../../resurses/journal.txt";
-
-    size_t queueSize = 0;
-
+    size_t queueSize;
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;
 
+    IdType freeOperatorId;
     std::deque<IdType> availableOperators;
     std::map<IdType, Operator> operators;
 
     mutable std::mutex callCenterMutex;
 
     Log::Logger callCenterLogger;
+    Log::Logger CDRLogger;
 };
 
 #endif // CALLCENTER_H
