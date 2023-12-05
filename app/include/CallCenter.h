@@ -28,27 +28,18 @@ public:
 
 public:
 
+    void run();
+
     void registerCall(IdType& callId, const std::string& phone, Date date);
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
     void connectOperator();
 
-public:
-
-    std::function<void(IdType, std::string)> onRegisterCallSignature;
-    std::function<void(IdType)> onResponseCallSignature;
-    std::function<void(IdType)> onEndCallSignature;
-
 private:
 
     [[nodiscard]] bool isQueueFull() const;
     [[nodiscard]] bool IsRegistred(const std::string& phone) const;
-    [[nodiscard]] bool IsRegistred(IdType callId) const;
-    [[nodiscard]] CallDetail& getCallDetail(IdType callId);
-
-    void addCallToQueue(CallDetail&& callDetail);
-    void releaseOperator(IdType operatorId, IdType callId);
 
     void tryToAcceptCall();
 

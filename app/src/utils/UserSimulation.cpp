@@ -6,9 +6,6 @@
 UserSimulation::UserSimulation(std::shared_ptr<CallCenter> center)
     : callCenter(std::move(center))
 {
-    callCenter->onRegisterCallSignature = [this](IdType callId, std::string phone){ this->onRegisterCall(callId, std::move(phone)); };
-    callCenter->onResponseCallSignature = [this](IdType callId){ this->onResponse(callId); };
-    callCenter->onEndCallSignature = [this](IdType callId){ this->onEndCall(callId); };
 }
 
 void UserSimulation::onRegisterCall(IdType callId, std::string phone)
