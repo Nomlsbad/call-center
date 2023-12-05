@@ -1,13 +1,13 @@
 #ifndef OPERATOR_H
 #define OPERATOR_H
 
-#include <thread>
-
 #include <log4cplus/log4cplus.h>
 
 #include "Types.h"
 
 namespace Log = log4cplus;
+
+class CallCenter;
 
 class Operator
 {
@@ -15,27 +15,15 @@ public:
 
     Operator();
 
-    [[nodiscard]] IdType getId() const { return id; }
+    [[nodiscard]] IdType getId() const;
 
-    [[nodiscard]] bool isConnected() const { return callCenter != nullptr; }
-
-    void connectTo(class CallCenter* center) { callCenter = center; }
-
+    void connect(std::weak_ptr<CallCenter> center, IdType operatorId);
     void acceptCall(IdType callId);
 
 private:
 
-    void talk(IdType callId) const;
-
-private:
-
     IdType id = 0;
-
-    static IdType nextId;
-
-    class CallCenter* callCenter = nullptr;
-
-    std::thread callThread;
+    std::weak_ptr<CallCenter> callCenter;
 
     Log::Logger operatorLogger;
 };

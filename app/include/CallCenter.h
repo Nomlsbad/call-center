@@ -14,7 +14,7 @@ class CallCenterConfig;
 namespace Log = log4cplus;
 
 
-class CallCenter
+class CallCenter : std::enable_shared_from_this<CallCenter>
 {
 public:
 
@@ -32,6 +32,8 @@ public:
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
+    void connectOperator();
+
 public:
 
     std::function<void(IdType, std::string)> onRegisterCallSignature;
@@ -48,11 +50,11 @@ private:
 
 private:
 
-    size_t queueSize = 0;
-
+    size_t queueSize;
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;
 
+    IdType freeOperatorId;
     std::deque<IdType> availableOperators;
     std::map<IdType, Operator> operators;
 
