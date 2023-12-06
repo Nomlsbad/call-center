@@ -32,6 +32,7 @@ void Listener::run()
 
 void Listener::doAccept()
 {
+    LOG4CPLUS_INFO(serverLogger, "Listener: awaiting connection");
     acceptor.async_accept(net::make_strand(ioContext),
                           beast::bind_front_handler(&Listener::onAccept, shared_from_this()));
 }

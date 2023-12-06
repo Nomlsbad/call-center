@@ -1,4 +1,4 @@
-#include "server/Serever.h"
+#include "server/Server.h"
 
 #include "CallCenter.h"
 #include "config/Configuration.h"
@@ -7,7 +7,7 @@
 
 #include <log4cplus/loggingmacros.h>
 
-Serever::Serever()
+Server::Server()
     : address(net::ip::make_address(Configuration::get<ServerConfig>().getHost())),
       port(Configuration::get<ServerConfig>().getPort()),
       threads(Configuration::get<ServerConfig>().getThreads()),
@@ -17,9 +17,11 @@ Serever::Serever()
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
+    LOG4CPLUS_INFO(serverLogger,
+                   "Server: server was created. Adress: " << address << ", port: " << port << ", threads: " << threads);
 }
 
-void Serever::run()
+void Server::run()
 {
     LOG4CPLUS_INFO(serverLogger, "Server: server was run");
 

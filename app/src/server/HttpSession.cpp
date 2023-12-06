@@ -20,7 +20,6 @@ void HttpSession::run()
 void HttpSession::read()
 {
     parser.emplace();
-
     stream.expires_after(std::chrono::seconds(30));
 
     http::async_read(stream, buffer, *parser, beast::bind_front_handler(&HttpSession::onRead, shared_from_this()));
@@ -29,6 +28,7 @@ void HttpSession::read()
 void HttpSession::onRead(beast::error_code errorCode, size_t bytes_transfered)
 {
     boost::ignore_unused(bytes_transfered);
+    LOG4CPLUS_INFO(sessionLogger, "HttpsSession: read new request");
 
     if (errorCode == http::error::end_of_stream)
     {
@@ -41,8 +41,20 @@ void HttpSession::onRead(beast::error_code errorCode, size_t bytes_transfered)
         return;
     }
 
-    addResponseToQueue(controller.lock()->handleRequest(parser->release()));
-    if (responceQueue.size() == queueSize) return;
+    const std::shared_ptr<IController> userController = controller.lock();
+    if (!userController)
+    {
+        LOG4CPLUS_ERROR(sessionLogger, "HttpsSession: controlles isn't available");
+        close();
+        return;
+    }
+    addResponseToQueue(userController->handleRequest(parser->release()));
+
+    if (responceQueue.size() == queueSize)
+    {
+        LOG4CPLUS_INFO(sessionLogger, "HttpsSession: response queue is full");
+        return;
+    }
 
     read();
 }
@@ -50,7 +62,11 @@ void HttpSession::onRead(beast::error_code errorCode, size_t bytes_transfered)
 bool HttpSession::write()
 {
     const bool wasFull = responceQueue.size() == queueSize;
-    if (responceQueue.empty()) return wasFull;
+    if (responceQueue.empty())
+    {
+        LOG4CPLUS_INFO(sessionLogger, "HttpsSession: nothing to write");
+        return wasFull;
+    }
 
     http::message_generator msg = std::move(responceQueue.front());
     const bool keepAlive = msg.keep_alive();
@@ -65,6 +81,7 @@ bool HttpSession::write()
 void HttpSession::onWrite(bool keepAlive, beast::error_code errorCode, size_t bytes_transfered)
 {
     boost::ignore_unused(bytes_transfered);
+    LOG4CPLUS_INFO(sessionLogger, "HttpsSession: response was written");
 
     if (errorCode)
     {
@@ -74,7 +91,8 @@ void HttpSession::onWrite(bool keepAlive, beast::error_code errorCode, size_t by
 
     if (!keepAlive)
     {
-        return close();
+        close();
+        return;
     }
 
     if (write())
@@ -86,6 +104,7 @@ void HttpSession::onWrite(bool keepAlive, beast::error_code errorCode, size_t by
 void HttpSession::addResponseToQueue(http::message_generator response)
 {
     responceQueue.push_back(std::move(response));
+    LOG4CPLUS_INFO(sessionLogger, "HttpsSession: response was added to queue");
     if (responceQueue.size() != 1) return;
 
     write();
