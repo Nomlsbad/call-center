@@ -20,7 +20,16 @@ public:
 
 private:
 
+    static TimeDuration getRandomDuration(const TimeDuration& min, const TimeDuration& max);
+    TimeDuration getWaitingDuration() const;
+    TimeDuration getTalkingDuration() const;
+
     std::map<IdType, User> users;
+
+    TimeDuration minWaitingTime;
+    TimeDuration maxWaitingTime;
+    TimeDuration minTalkingTime;
+    TimeDuration maxTalkingTime;
 
     std::weak_ptr<CallCenter> callCenter;
 

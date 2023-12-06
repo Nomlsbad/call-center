@@ -15,24 +15,15 @@ User::User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCente
       callCenter(std::move(callCenter)),
       userLogger(Log::Logger::getInstance("CallHandlingLogger"))
 {
-    using boost::posix_time::duration_from_string;
-
-    const TimeDuration minWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMinWaitingTime());
-    const TimeDuration maxWaitingTime = duration_from_string(Configuration::get<UserConfig>().getMaxWaitingTime());
-    waitingTime = getRandomDuration(minWaitingTime, maxWaitingTime);
-
-    const TimeDuration minTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMinTalkingTime());
-    const TimeDuration maxTalkingTime = duration_from_string(Configuration::get<UserConfig>().getMaxTalkingTime());
-    talkingTime = getRandomDuration(minTalkingTime, maxTalkingTime);
 }
 
-void User::wait() const
+void User::wait(const TimeDuration& waitingTime) const
 {
     LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will waiting " << to_simple_string(waitingTime) << "ms.");
 
     auto self = this;
     std::thread waiting(
-        [self]
+        [self, waitingTime]
         {
             Log::Logger waitingLogger(Log::Logger::getInstance("CallHandlingLogger"));
             if (!self)
@@ -43,9 +34,8 @@ void User::wait() const
 
             const std::shared_ptr callCenter = self->callCenter.lock();
             const IdType callId = self->getCallId();
-            const std::chrono::milliseconds waitingTime(self->waitingTime.total_milliseconds());
 
-            std::this_thread::sleep_for(waitingTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(waitingTime.total_milliseconds()));
             if (!self || !callCenter || self->wasResponded)
             {
                 if (!self)
@@ -64,12 +54,12 @@ void User::wait() const
     waiting.detach();
 }
 
-void User::talk() const
+void User::talk(const TimeDuration& talkingTime) const
 {
-    LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will talking " << to_simple_string(waitingTime) << "ms.");
+    LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will talking " << to_simple_string(talkingTime) << "ms.");
     auto self = this;
     std::thread talking(
-        [self]
+        [self, talkingTime]
         {
             Log::Logger talkingLogger(Log::Logger::getInstance("CallHandlingLogger"));
 
@@ -80,9 +70,8 @@ void User::talk() const
             }
             const std::shared_ptr callCenter = self->callCenter.lock();
             const IdType callId = self->getCallId();
-            const std::chrono::milliseconds talkingTime(self->talkingTime.total_milliseconds());
 
-            std::this_thread::sleep_for(talkingTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(talkingTime.total_milliseconds()));
             if (!callCenter)
             {
                 LOG4CPLUS_ERROR(talkingLogger, "User: call center was destroyed");
@@ -98,16 +87,6 @@ void User::response()
 {
     LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] get response");
     wasResponded = true;
-    talk();
-}
-
-TimeDuration User::getRandomDuration(const TimeDuration& min, const TimeDuration& max)
-{
-    const long minDuration = min.total_milliseconds();
-    const long maxDuration = max.total_milliseconds();
-
-    const long randomDuration = rand() % (maxDuration - minDuration) + minDuration;
-    return boost::posix_time::milliseconds(randomDuration);
 }
 
 IdType User::getCallId() const
