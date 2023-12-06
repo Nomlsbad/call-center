@@ -29,14 +29,12 @@ public:
 
 private:
 
+    IdType callId;
+    std::string phone;
+
     std::weak_ptr<CallCenter> callCenter;
 
     Log::Logger userLogger;
-
-private:
-
-    IdType callId;
-    std::string phone;
 
     bool wasResponded = false;
 };
