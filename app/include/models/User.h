@@ -38,6 +38,8 @@ private:
     std::weak_ptr<CallCenter> callCenter;
     TimeDuration waitingTime;
     TimeDuration talkingTime;
+
+    Log::Logger userLogger;
 };
 
 #endif // USER_H
