@@ -4,6 +4,8 @@
 #include "Types.h"
 #include "models/User.h"
 
+namespace Log = log4cplus;
+
 class CallCenter;
 
 class UserSimulation
@@ -21,6 +23,8 @@ private:
     std::map<IdType, User> users;
 
     std::weak_ptr<CallCenter> callCenter;
+
+    Log::Logger userLogger;
 };
 
 #endif // USERSIMULATION_H
