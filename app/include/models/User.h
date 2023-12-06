@@ -3,9 +3,13 @@
 
 #include "Types.h"
 
+#include <log4cplus/log4cplus.h>
+
 enum class CallEndingStatus : uint8_t;
 
 class CallCenter;
+
+namespace Log = log4cplus;
 
 class User
 {
@@ -16,30 +20,25 @@ public:
     [[nodiscard]] IdType getCallId() const;
     [[nodiscard]] std::string getPhone() const;
 
+public:
+
+    void response();
+
+    void wait(const TimeDuration& waitingTime) const;
+    void talk(const TimeDuration& talkingTime) const;
+
+private:
+
+    std::weak_ptr<CallCenter> callCenter;
+
+    Log::Logger userLogger;
+
 private:
 
     IdType callId;
     std::string phone;
 
-/* Section for simulation end call after random time. */
-public:
-
-    void response();
-
-    void wait() const;
-    void talk() const;
-
     bool wasResponded = false;
-
-private:
-
-    static TimeDuration getRandomDuration(const TimeDuration& min, const TimeDuration& max);
-
-    std::weak_ptr<CallCenter> callCenter;
-    TimeDuration waitingTime;
-    TimeDuration talkingTime;
-
-    Log::Logger userLogger;
 };
 
 #endif // USER_H
