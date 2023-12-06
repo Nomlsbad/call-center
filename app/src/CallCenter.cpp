@@ -103,8 +103,6 @@ void CallCenter::tryToAcceptCall()
     callCenterLock.unlock();
 
     availableOperator.acceptCall(callId);
-    LOG4CPLUS_INFO(callCenterLogger,
-                   "Call Center: Call[" << callId << "]: call was accepted by operator[" << operatorId << "]");
 }
 
 void CallCenter::connectOperator()
@@ -113,6 +111,7 @@ void CallCenter::connectOperator()
     const IdType operatorId = freeOperatorId++;
 
     newOperator.connect(weak_from_this(), operatorId);
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
 
     std::lock_guard lock(callCenterMutex);
     operators.emplace(operatorId, std::move(newOperator));

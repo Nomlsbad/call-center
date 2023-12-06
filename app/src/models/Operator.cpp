@@ -9,19 +9,21 @@ void Operator::connect(std::weak_ptr<CallCenter> center, IdType operatorId)
 {
     callCenter = std::move(center);
     id = operatorId;
+    LOG4CPLUS_INFO(operatorLogger, "Operator: operator[" << id << "]: connected to call center");
 }
 
 void Operator::acceptCall(IdType callId)
 {
-    if (callCenter.expired())
+    const std::shared_ptr<CallCenter> center = callCenter.lock();
+    if (!center)
     {
         LOG4CPLUS_WARN(operatorLogger,
-                       "Operator: Operator[" << id << "]: this operator doesn't connect to call center");
+                       "Operator: operator[" << id << "] doesn't connect to call center");
         return;
     }
 
-    callCenter.lock()->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
-    LOG4CPLUS_INFO(operatorLogger, "Operator: Operator[" << id << "]: operator accepted the call[" << callId << "]");
+    center->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
+    LOG4CPLUS_INFO(operatorLogger, "Operator: operator[" << id << "] accepted the call[" << callId << "]");
 }
 
 IdType Operator::getId() const
