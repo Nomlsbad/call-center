@@ -17,6 +17,8 @@ Serever::Serever()
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
+    LOG4CPLUS_INFO(serverLogger,
+                   "Server: server was created. Adress: " << address << ", port: " << port << ", threads: " << threads);
 }
 
 void Serever::run()
