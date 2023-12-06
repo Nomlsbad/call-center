@@ -1,5 +1,5 @@
-#ifndef SEREVER_H
-#define SEREVER_H
+#ifndef SERVER_H
+#define SERVER_H
 
 #include "Types.h"
 
@@ -13,12 +13,12 @@ class IController;
 class Listener;
 class ServerConfig;
 
-class Serever
+class Server
 {
 public:
 
-    explicit Serever();
-    ~Serever() = default;
+    explicit Server();
+    ~Server() = default;
 
     void run();
 
@@ -37,4 +37,4 @@ private:
     Log::Logger serverLogger;
 };
 
-#endif // SEREVER_H
+#endif // SERVER_H
