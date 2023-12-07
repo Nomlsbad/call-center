@@ -33,7 +33,6 @@ void CallCenter::run(std::shared_ptr<UserSimulation> userSimulation)
 void CallCenter::registerCall(IdType& callId, const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
-    callDetail.recordReceiption(date);
     callId = std::max<IdType>(1, freeCallId++);
     callDetail.recordReceiption(callId, date);
     std::lock_guard callCenterLock(callCenterMutex);
@@ -124,7 +123,7 @@ void CallCenter::tryToAcceptCall()
 void CallCenter::connectOperator()
 {
     Operator newOperator;
-    const IdType operatorId = freeOperatorId++;
+    const IdType operatorId = std::max<IdType>(1, freeOperatorId++);
 
     newOperator.connect(weak_from_this(), operatorId);
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
