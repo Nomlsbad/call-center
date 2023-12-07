@@ -1,10 +1,10 @@
-#include "callcenter/CallCenter.h"
-#include "callcenter/UserSimulation.h"
-#include "config/Configuration.h"
-#include "utils/Exceptions.h"
+#include "../../app/include/callcenter/UserSimulation.h"
+#include "../../app/include/callcenter/CallCenter.h"
+#include "../../app/include/config/Configuration.h"
+#include "../../app/include/utils/Exceptions.h"
 
+#include <../../cmake-build-debug/_deps/googletest-src/googletest/include/gtest/gtest.h>
 #include <boost/date_time/posix_time/time_parsers.hpp>
-#include <gtest/gtest.h>
 
 using boost::posix_time::microsec_clock;
 

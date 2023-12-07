@@ -10,6 +10,15 @@ include(FetchContent)
 
 #Boost
 find_package(Boost 1.83 REQUIRED)
+if (NOT Boost_FOUND)
+    FetchContent_Declare(
+            Boost
+            GIT_REPOSITORY "https://github.com/boostorg/boost.git"
+            GIT_TAG  boost-1.83.0
+    )
+    FetchContent_MakeAvailable(Boost)
+endif ()
+
 set(Boost_USE_MULTITHREADED ON)
 
 #Log4cplus
