@@ -17,11 +17,13 @@ User::User(IdType callId, std::string phone, std::weak_ptr<CallCenter> callCente
 {
 }
 
-void User::wait(const TimeDuration& waitingTime) const
+void User::wait(const TimeDuration& waitingTime)
 {
-    LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will waiting " << to_simple_string(waitingTime) << "ms.");
+    if (status != NONE) return;
 
+    LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will waiting " << to_simple_string(waitingTime) << "ms.");
     auto self = this;
+
     std::thread waiting(
         [self, waitingTime]
         {
@@ -52,12 +54,16 @@ void User::wait(const TimeDuration& waitingTime) const
             callCenter->endCall(callId, CallEndingStatus::TIMEOUT, microsec_clock::local_time());
         });
     waiting.detach();
+    status = WAITING;
 }
 
-void User::talk(const TimeDuration& talkingTime) const
+void User::talk(const TimeDuration& talkingTime)
 {
+    if (status != WAITING) return;
+
     LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] will talking " << to_simple_string(talkingTime) << "ms.");
     auto self = this;
+
     std::thread talking(
         [self, talkingTime]
         {
@@ -81,10 +87,13 @@ void User::talk(const TimeDuration& talkingTime) const
             callCenter->endCall(callId, CallEndingStatus::OK, microsec_clock::local_time());
         });
     talking.detach();
+    status = TALKING;
 }
 
 void User::response()
 {
+    if (status != WAITING) return;
+
     LOG4CPLUS_INFO(userLogger, "User: user[" << callId << "] get response");
     wasResponded = true;
 }

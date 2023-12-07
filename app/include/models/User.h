@@ -24,8 +24,8 @@ public:
 
     void response();
 
-    void wait(const TimeDuration& waitingTime) const;
-    void talk(const TimeDuration& talkingTime) const;
+    void wait(const TimeDuration& waitingTime);
+    void talk(const TimeDuration& talkingTime);
 
 private:
 
@@ -36,6 +36,14 @@ private:
 
     Log::Logger userLogger;
 
+    enum Status
+    {
+        WAITING = 0,
+        TALKING = 1,
+
+        NONE = 2
+    };
+    Status status = NONE;
     bool wasResponded = false;
 };
 
