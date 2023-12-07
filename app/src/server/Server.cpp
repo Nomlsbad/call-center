@@ -8,9 +8,9 @@
 #include <log4cplus/loggingmacros.h>
 
 Server::Server()
-    : address(net::ip::make_address(Configuration::get<ServerConfig>().getHost())),
-      port(Configuration::get<ServerConfig>().getPort()),
-      threads(Configuration::get<ServerConfig>().getThreads()),
+    : address(net::ip::make_address(Configuration::get<ServerConfig>("address"))),
+      port(Configuration::get<ServerConfig>("port")),
+      threads(Configuration::get<ServerConfig>("threads")),
       callCenter(std::make_shared<CallCenter>()),
       controller(std::make_shared<UserController>(callCenter)),
       ioContext(threads),
@@ -18,14 +18,14 @@ Server::Server()
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
     LOG4CPLUS_INFO(serverLogger,
-                   "Server: server was created. Adress: " << address << ", port: " << port << ", threads: " << threads);
+                   "Server: server was created. Address: " << address << ", port: " << port << ", threads: " << threads);
 }
 
 void Server::run()
 {
     LOG4CPLUS_INFO(serverLogger, "Server: server was run");
 
-    const size_t operators = Configuration::get<CallCenterConfig>().getOperators();
+    const size_t operators = Configuration::get<CallCenterConfig>("operators");
     for (size_t i = 0; i < operators; ++i)
     {
         callCenter->connectOperator();

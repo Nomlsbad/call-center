@@ -1,23 +1,30 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-#include "config/CallCenterConfig.h"
-#include "config/ServerConfig.h"
-#include "config/UserConfig.h"
+#include "config/Configs.h"
 
-#include "utils/Exceptions.h"
-#include "utils/Macros.h"
+#include <concepts>
 
 class Configuration
 {
 public:
 
-    template <typename T>
-    static T& get() { throw CCenter::UnkownConfiguration("This unknown configuration class"); }
+    static void initialize(std::string path)
+    {
+        configPath = std::move(path);
+    }
 
-    GET_CONFIG(CallCenterConfig);
-    GET_CONFIG(ServerConfig);
-    GET_CONFIG(UserConfig);
+    template <std::derived_from<JsonConfig> Config>
+    static basic_json get(const std::string& param)
+    {
+        static Config config;
+        config.update(configPath, true);
+        return config[param];
+    }
+
+private:
+
+    static inline std::string configPath = "../../config.json";
 };
 
 #endif // CONFIGURATION_H

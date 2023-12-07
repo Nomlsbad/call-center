@@ -3,6 +3,7 @@
 
 #include <boost/beast.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <nlohmann/json.hpp>
 
 #include <nlohmann/json_fwd.hpp>
 
@@ -25,7 +26,9 @@ using TimeDuration = boost::posix_time::time_duration;
 
 
 //------------Nlohmann JSON------------//
+using basic_json = nlohmann::basic_json<>;
 using json = nlohmann::json;
+using json_ptr = json::json_pointer;
 //------------Nlohmann JSON------------//
 
 #endif //TYPES_H

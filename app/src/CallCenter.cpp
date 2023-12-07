@@ -4,7 +4,7 @@
 #include "utils/UserSimulation.h"
 
 CallCenter::CallCenter()
-    : queueSize(Configuration::get<CallCenterConfig>().getQueueSize()),
+    : queueSize(Configuration::get<CallCenterConfig>("queueSize")),
       freeOperatorId(1),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
       CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))

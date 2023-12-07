@@ -8,10 +8,10 @@
 using boost::posix_time::duration_from_string;
 
 UserSimulation::UserSimulation(std::weak_ptr<CallCenter> callCenter)
-    : minWaitingTime(duration_from_string(Configuration::get<UserConfig>().getMinWaitingTime())),
-      maxWaitingTime(duration_from_string(Configuration::get<UserConfig>().getMaxWaitingTime())),
-      minTalkingTime(duration_from_string(Configuration::get<UserConfig>().getMinTalkingTime())),
-      maxTalkingTime(duration_from_string(Configuration::get<UserConfig>().getMaxTalkingTime())),
+    : minWaitingTime(duration_from_string(Configuration::get<UserConfig>("minWaitingTime"))),
+      maxWaitingTime(duration_from_string(Configuration::get<UserConfig>("maxWaitingTime"))),
+      minTalkingTime(duration_from_string(Configuration::get<UserConfig>("minTalkingTime"))),
+      maxTalkingTime(duration_from_string(Configuration::get<UserConfig>("maxTalkingTime"))),
       callCenter(std::move(callCenter)),
       userLogger(Log::Logger::getInstance("CallHandlingLogger"))
 {
@@ -43,7 +43,8 @@ TimeDuration UserSimulation::getRandomDuration(const TimeDuration& min, const Ti
     const long minDuration = min.total_milliseconds();
     const long maxDuration = max.total_milliseconds();
 
-    const long randomDuration = rand() % (maxDuration - minDuration) + minDuration;
+    const long mod = std::max<long>(1, maxDuration - minDuration);
+    const long randomDuration = rand() % mod + minDuration;
     return boost::posix_time::milliseconds(randomDuration);
 }
 
