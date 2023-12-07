@@ -2,6 +2,7 @@
 #include "controller/IController.h"
 #include "server/HttpSession.h"
 
+#include <boost/asio/strand.hpp>
 #include <log4cplus/loggingmacros.h>
 
 Listener::Listener(net::io_context& ioContext, tcp::endpoint endpoint, std::weak_ptr<IController> controller)

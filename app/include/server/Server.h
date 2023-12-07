@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Types.h"
+#include "utils/Types.h"
 
 #include <boost/asio/ip/address.hpp>
 #include <log4cplus/logger.h>

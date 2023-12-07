@@ -1,7 +1,7 @@
 #ifndef USERSIMULATION_H
 #define USERSIMULATION_H
 
-#include "Types.h"
+#include "utils/Types.h"
 #include "models/User.h"
 
 namespace Log = log4cplus;

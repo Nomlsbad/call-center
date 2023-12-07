@@ -1,7 +1,7 @@
-#include "CallCenter.h"
+#include "callcenter/CallCenter.h"
 #include "config/Configuration.h"
 #include "utils/Exceptions.h"
-#include "utils/UserSimulation.h"
+#include "callcenter/UserSimulation.h"
 
 CallCenter::CallCenter()
     : queueSize(Configuration::get<CallCenterConfig>("queueSize")),
@@ -26,11 +26,13 @@ void CallCenter::run()
             }
         });
     queueObserver.detach();
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: call center was run");
 }
 
 void CallCenter::registerCall(IdType& callId, const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
+    callDetail.recordReceiption(date);
     std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())

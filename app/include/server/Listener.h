@@ -1,10 +1,8 @@
 #ifndef LISTENER_H
 #define LISTENER_H
 
-#include "Types.h"
+#include "utils/Types.h"
 
-#include <boost/asio.hpp>
-#include <boost/beast.hpp>
 #include <log4cplus/logger.h>
 #include <memory>
 

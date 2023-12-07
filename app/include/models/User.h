@@ -1,7 +1,7 @@
 #ifndef USER_H
 #define USER_H
 
-#include "Types.h"
+#include "utils/Types.h"
 
 #include <log4cplus/log4cplus.h>
 

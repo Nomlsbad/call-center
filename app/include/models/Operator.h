@@ -3,7 +3,7 @@
 
 #include <log4cplus/log4cplus.h>
 
-#include "Types.h"
+#include "utils/Types.h"
 
 namespace Log = log4cplus;
 

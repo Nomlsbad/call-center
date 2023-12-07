@@ -1,7 +1,6 @@
-#include "utils/UserSimulation.h"
-#include "CallCenter.h"
+#include "callcenter/UserSimulation.h"
 #include "config/Configuration.h"
-#include "models/User.h"
+
 
 #include <boost/date_time/posix_time/time_parsers.hpp>
 

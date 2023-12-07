@@ -1,10 +1,11 @@
 #include "server/Server.h"
 
-#include "CallCenter.h"
+#include "callcenter/CallCenter.h"
 #include "config/Configuration.h"
 #include "controller/UserController.h"
 #include "server/Listener.h"
 
+#include <boost/asio/signal_set.hpp>
 #include <log4cplus/loggingmacros.h>
 
 Server::Server()
@@ -17,8 +18,8 @@ Server::Server()
       listener(std::make_shared<Listener>(ioContext, tcp::endpoint{address, port}, controller)),
       serverLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("ServerLogger")))
 {
-    LOG4CPLUS_INFO(serverLogger,
-                   "Server: server was created. Address: " << address << ", port: " << port << ", threads: " << threads);
+    LOG4CPLUS_INFO(serverLogger, "Server: server was created. Address: " << address << ", port: " << port
+                                                                         << ", threads: " << threads);
 }
 
 void Server::run()
