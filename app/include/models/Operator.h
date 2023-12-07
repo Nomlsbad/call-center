@@ -9,13 +9,13 @@ namespace Log = log4cplus;
 
 class CallCenter;
 
-class Operator
+class Operator : public std::enable_shared_from_this<Operator>
 {
 public:
 
     Operator();
 
-    void connect(std::weak_ptr<CallCenter> center, IdType operatorId);
+    void connect(const std::weak_ptr<CallCenter>& center);
     void acceptCall(IdType callId);
     void onEndCall();
 

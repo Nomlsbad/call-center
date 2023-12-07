@@ -60,13 +60,14 @@ TEST(CallCenterTest, CanRegister2DifferentCallsIfQueueSizeAndOperatorsAre1)
 {
     Configuration::get<CallCenterConfig>("queueSize") = 1;
     auto callCenter = std::make_shared<CallCenter>();
+    const auto mobileOperator = std::make_shared<Operator>();
     IdType firstCallId = 0;
     IdType secondCallId = 0;
 
     auto registerCall = [&callCenter](IdType& callId, const std::string& phone)
     { callCenter->registerCall(callId, phone, microsec_clock::local_time()); };
 
-    callCenter->connectOperator();
+    mobileOperator->connect(callCenter);
     callCenter->run();
 
     EXPECT_NO_THROW(registerCall(firstCallId, "+71234567890"));
@@ -79,12 +80,13 @@ TEST(CallCenterTest, CantRegisterCallIfQueueSizeIsZeroButOperatorsIsntZero)
 {
     Configuration::get<CallCenterConfig>("queueSize") = 0;
     auto callCenter = std::make_shared<CallCenter>();
+    const auto mobileOperator = std::make_shared<Operator>();
     IdType callId = 0;
 
     auto registerCall = [&callCenter](IdType& callId, const std::string& phone)
     { callCenter->registerCall(callId, phone, microsec_clock::local_time()); };
 
-    callCenter->connectOperator();
+    mobileOperator->connect(callCenter);
     callCenter->run();
 
     EXPECT_THROW(registerCall(callId, "+71234567890"), CCenter::Overload);
@@ -94,13 +96,14 @@ TEST(CallCenterTest, CantRegister2SameCallsWith1Operator)
 {
     Configuration::get<CallCenterConfig>("queueSize") = 2;
     auto callCenter = std::make_shared<CallCenter>();
+    const auto mobileOperator = std::make_shared<Operator>();
     IdType firstCallId = 0;
     IdType secondCallId = 0;
 
     auto registerCall = [&callCenter](IdType& callId, const std::string& phone)
     { callCenter->registerCall(callId, phone, microsec_clock::local_time()); };
 
-    callCenter->connectOperator();
+    mobileOperator->connect(callCenter);
     callCenter->run();
 
     EXPECT_NO_THROW(registerCall(firstCallId, "+71234567890"));
@@ -113,11 +116,11 @@ TEST(CallCenterTest, CantResponseOnRandomCall)
     auto callCenter = std::make_shared<CallCenter>();
     IdType callId = 0;
 
-    callCenter->run();
-    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
-
     auto responseCall = [&callCenter](IdType callId)
     { callCenter->responseCall(callId, 1, microsec_clock::local_time()); };
+
+    callCenter->run();
+    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     EXPECT_NO_THROW(responseCall(callId));
     EXPECT_THROW(responseCall(6847), std::out_of_range);
@@ -131,11 +134,11 @@ TEST(CallCenterTest, CantResponseTwoTimes)
     auto callCenter = std::make_shared<CallCenter>();
     IdType callId = 0;
 
-    callCenter->run();
-    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
-
     auto responseCall = [&callCenter](IdType callId)
     { callCenter->responseCall(callId, 1, microsec_clock::local_time()); };
+
+    callCenter->run();
+    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     EXPECT_NO_THROW(responseCall(callId));
     EXPECT_THROW(responseCall(callId), CCenter::DoubleResponse);
@@ -147,11 +150,11 @@ TEST(CallCenterTest, CanEndCallInQueue)
     auto callCenter = std::make_shared<CallCenter>();
     IdType callId = 0;
 
-    callCenter->run();
-    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
-
     auto endCall = [&callCenter](IdType callId)
     { callCenter->endCall(callId, CallEndingStatus::TIMEOUT, microsec_clock::local_time()); };
+
+    callCenter->run();
+    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     EXPECT_NO_THROW(endCall(callId));
 }
@@ -160,14 +163,15 @@ TEST(CallCenterTest, CanEndCallInTalking)
 {
     Configuration::get<CallCenterConfig>("queueSize") = 1;
     auto callCenter = std::make_shared<CallCenter>();
+    const auto mobileOperator = std::make_shared<Operator>();
     IdType callId = 0;
-
-    callCenter->connectOperator();
-    callCenter->run();
-    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     auto endCall = [&callCenter](IdType callId)
     { callCenter->endCall(callId, CallEndingStatus::OK, microsec_clock::local_time()); };
+
+    mobileOperator->connect(callCenter);
+    callCenter->run();
+    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     EXPECT_NO_THROW(endCall(callId));
 }
@@ -178,11 +182,11 @@ TEST(CallCenterTest, CantEndRandomCall)
     auto callCenter = std::make_shared<CallCenter>();
     IdType callId = 0;
 
-    callCenter->run();
-    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
-
     auto endCall = [&callCenter](IdType callId)
     { callCenter->endCall(callId, CallEndingStatus::OK, microsec_clock::local_time()); };
+
+    callCenter->run();
+    callCenter->registerCall(callId, "+71234567890", microsec_clock::local_time());
 
     EXPECT_THROW(endCall(6847), std::out_of_range) << 1;
     EXPECT_THROW(endCall(2), std::out_of_range) << 2;

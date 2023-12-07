@@ -89,8 +89,8 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
     const IdType operatorId = callDetail.getOperatorId();
     if (operatorId != 0)
     {
-        Operator& phoneOperator = operators.at(operatorId);
-        phoneOperator.onEndCall();
+        const auto& mobileOperator = operators.at(operatorId);
+        mobileOperator->onEndCall();
 
         availableOperators.push_back(operatorId);
     }
@@ -114,23 +114,24 @@ void CallCenter::tryToAcceptCall()
     availableOperators.pop_front();
     awaitingCalls.pop_front();
 
-    Operator& availableOperator = operators.at(operatorId);
+    const auto& availableOperator = operators.at(operatorId);
     callCenterLock.unlock();
 
-    availableOperator.acceptCall(callId);
+    availableOperator->acceptCall(callId);
 }
 
-void CallCenter::connectOperator()
+IdType CallCenter::applyConnection(std::shared_ptr<Operator> mobileOperator)
 {
-    Operator newOperator;
+    if (!mobileOperator) return 0;
     const IdType operatorId = std::max<IdType>(1, freeOperatorId++);
 
-    newOperator.connect(weak_from_this(), operatorId);
-    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
-
     std::lock_guard lock(callCenterMutex);
-    operators.emplace(operatorId, std::move(newOperator));
+
+    operators[operatorId] = std::move(mobileOperator);
     availableOperators.push_back(operatorId);
+
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
+    return operatorId;
 }
 
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const

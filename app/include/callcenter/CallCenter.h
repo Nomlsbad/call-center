@@ -34,7 +34,7 @@ public:
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
-    void connectOperator();
+    IdType applyConnection(std::shared_ptr<Operator> mobileOperator);
 
 private:
 
@@ -54,7 +54,7 @@ private:
 
     IdType freeOperatorId;
     std::deque<IdType> availableOperators;
-    std::map<IdType, Operator> operators;
+    std::map<IdType, std::shared_ptr<Operator>> operators;
 
     std::mutex callCenterMutex;
 

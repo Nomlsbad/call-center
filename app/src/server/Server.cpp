@@ -30,8 +30,10 @@ void Server::run()
     const size_t operators = Configuration::get<CallCenterConfig>("operators");
     for (size_t i = 0; i < operators; ++i)
     {
-        callCenter->connectOperator();
+        const auto mobileOperator = std::make_shared<Operator>();
+        mobileOperator->connect(callCenter);
     }
+
     callCenter->run(std::make_shared<UserSimulation>(callCenter));
 
     listener->run();

@@ -5,10 +5,15 @@ Operator::Operator()
 {
 }
 
-void Operator::connect(std::weak_ptr<CallCenter> center, IdType operatorId)
+void Operator::connect(const std::weak_ptr<CallCenter>& center)
 {
-    callCenter = std::move(center);
-    id = operatorId;
+    const auto sharedCenter = center.lock();
+    if (!sharedCenter) return;
+
+    id = sharedCenter->applyConnection(shared_from_this());
+    if (id == 0) return;
+
+    callCenter = center;
     LOG4CPLUS_INFO(operatorLogger, "Operator: operator[" << id << "]: connected to call center");
 }
 
@@ -21,12 +26,11 @@ void Operator::acceptCall(IdType callId)
         return;
     }
 
-    acceptedCallId = callId;
-    isBusy = false;
-
     try
     {
         center->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
+        acceptedCallId = callId;
+        isBusy = true;
     }
     catch (const std::out_of_range& e)
     {
@@ -38,7 +42,7 @@ void Operator::acceptCall(IdType callId)
 
 void Operator::onEndCall()
 {
-    isBusy = true;
+    isBusy = false;
 }
 
 IdType Operator::getId() const
