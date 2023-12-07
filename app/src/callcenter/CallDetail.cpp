@@ -48,9 +48,9 @@ std::string CallDetail::getEndingStatusAsString() const
     }
 }
 
-void CallDetail::recordReceiption(Date date)
+void CallDetail::recordReceiption(IdType callId, Date date)
 {
-    id = std::max<IdType>(1, nextId++);
+    id = callId;
     receiptDate = date;
 }
 

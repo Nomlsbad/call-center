@@ -47,6 +47,7 @@ private:
 
 private:
 
+    IdType freeCallId;
     size_t queueSize;
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;

@@ -20,7 +20,7 @@ TEST(CallDetailRecord, CDRContains8SegmentsAfterRecordReceiption)
 {
     CallDetail callDetail("+71234567890");
 
-    callDetail.recordReceiption(microsec_clock::local_time());
+    callDetail.recordReceiption(1, microsec_clock::local_time());
     std::string record = callDetail.toString();
     const size_t segments = std::ranges::count(record, ';');
 
@@ -31,7 +31,7 @@ TEST(CallDetailRecord, CDRContains8SegmentsAfterRecordResponse)
 {
     CallDetail callDetail("+71234567890");
 
-    callDetail.recordReceiption(microsec_clock::local_time());
+    callDetail.recordReceiption(1, microsec_clock::local_time());
     callDetail.recordResponse(1, microsec_clock::local_time());
     std::string record = callDetail.toString();
     const size_t segments = std::ranges::count(record, ';');
@@ -43,7 +43,7 @@ TEST(CallDetailRecord, CDRContains8SegmentsAfterRecordEnding)
 {
     CallDetail callDetail("+71234567890");
 
-    callDetail.recordReceiption(microsec_clock::local_time());
+    callDetail.recordReceiption(1, microsec_clock::local_time());
     callDetail.recordEnding(CallEndingStatus::OK, microsec_clock::local_time());
     std::string record = callDetail.toString();
     const size_t segments = std::ranges::count(record, ';');
@@ -69,7 +69,7 @@ TEST(CallDetailRecord, CDRDosntHaveLast3FieldsWithoutResposeWithAnyEndingStatus)
 
     const std::string emptyRecord = callDetail.toString();
 
-    callDetail.recordReceiption(microsec_clock::local_time());
+    callDetail.recordReceiption(1, microsec_clock::local_time());
     const std::string receiptionRecord = callDetail.toString();
 
     callDetail.recordEnding(CallEndingStatus::OK, microsec_clock::local_time());

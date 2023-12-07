@@ -1,10 +1,11 @@
 #include "callcenter/CallCenter.h"
+#include "callcenter/UserSimulation.h"
 #include "config/Configuration.h"
 #include "utils/Exceptions.h"
-#include "callcenter/UserSimulation.h"
 
 CallCenter::CallCenter()
-    : queueSize(Configuration::get<CallCenterConfig>("queueSize")),
+    : freeCallId(1),
+      queueSize(Configuration::get<CallCenterConfig>("queueSize")),
       freeOperatorId(1),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
       CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))
@@ -33,6 +34,8 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
 {
     CallDetail callDetail(phone);
     callDetail.recordReceiption(date);
+    callId = std::max<IdType>(1, freeCallId++);
+    callDetail.recordReceiption(callId, date);
     std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())
@@ -52,7 +55,6 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
 
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: new call was accepted for registration");
 
-    callDetail.recordReceiption(date);
     callId = callDetail.getId();
     awaitingCalls.push_back(callId);
     calls.emplace(callId, std::move(callDetail));
