@@ -9,7 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(FetchContent)
 
 #Boost
-find_package(Boost 1.83 REQUIRED)
+find_package(Boost 1.83)
 if (NOT Boost_FOUND)
     FetchContent_Declare(
             Boost
