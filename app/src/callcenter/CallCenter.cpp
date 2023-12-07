@@ -12,9 +12,9 @@ CallCenter::CallCenter()
 {
 }
 
-void CallCenter::run()
+void CallCenter::run(std::shared_ptr<UserSimulation> userSimulation)
 {
-    simulation = std::make_shared<UserSimulation>(weak_from_this());
+    simulation = std::move(userSimulation);
     std::weak_ptr weakCenter = shared_from_this();
 
     std::thread queueObserver(
@@ -60,6 +60,7 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
     calls.emplace(callId, std::move(callDetail));
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added to queue");
 
+    if (!simulation) return;
     simulation->onRegisterCall(callId, phone);
 }
 
@@ -70,8 +71,10 @@ void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
     std::lock_guard callCenterLock(callCenterMutex);
 
     CallDetail& callDetail = calls.at(callId);
+    if (callDetail.getOperatorId() != 0) throw CCenter::DoubleResponse("Double response");
     callDetail.recordResponse(operatorId, date);
 
+    if (!simulation) return;
     simulation->onResponse(callId);
 }
 
@@ -84,10 +87,19 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
     callDetail.recordEnding(callEndingStatus, date);
     makeCallDetailRecord(callDetail);
 
-    availableOperators.push_back(callDetail.getOperatorId());
+    const IdType operatorId = callDetail.getOperatorId();
+    if (operatorId != 0)
+    {
+        Operator& phoneOperator = operators.at(operatorId);
+        phoneOperator.onEndCall();
+
+        availableOperators.push_back(operatorId);
+    }
+
     calls.erase(callId);
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
 
+    if (!simulation) return;
     simulation->onEndCall(callId);
 }
 

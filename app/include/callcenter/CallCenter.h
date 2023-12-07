@@ -28,7 +28,7 @@ public:
 
 public:
 
-    void run();
+    void run(std::shared_ptr<UserSimulation> userSimulation = nullptr);
 
     void registerCall(IdType& callId, const std::string& phone, Date date);
     void responseCall(IdType callId, IdType operatorId, Date date);

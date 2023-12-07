@@ -32,7 +32,12 @@ void JsonConfig::readFromFile(const std::string& path)
     configPath = path;
 }
 
-basic_json JsonConfig::operator[] (const std::string& param)
+basic_json& JsonConfig::operator[](const std::string& param)
+{
+    return config.at(param);
+}
+
+basic_json JsonConfig::operator[](const std::string& param) const
 {
     return config.at(param);
 }

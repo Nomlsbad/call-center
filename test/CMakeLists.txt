@@ -1,6 +1,4 @@
-add_executable(${TEST_NAME}
-        CallDetailTest.cpp
-)
+add_executable(${TEST_NAME} ${TEST_SOURCES})
 
 target_include_directories(${TEST_NAME}
         PUBLIC

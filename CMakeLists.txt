@@ -55,7 +55,7 @@ set(TEST_NAME ${PROJECT_NAME}_test)
 set (TEST_PATH "${PROJECT_SOURCE_DIR}/test")
 set (TEST_SRC_PATH ${TEST_PATH})
 
-file (GLOB TEST_SOURCES "${TEST_SRC_PATH}/*.cpp")
+file (GLOB_RECURSE TEST_SOURCES "${TEST_SRC_PATH}/*.cpp")
 message(STATUS ${TEST_SOURCES} )
 
 enable_testing()
