@@ -13,9 +13,9 @@ std::string CallDetail::toString() const
 {
     std::stringstream strStream;
 
+    strStream << to_simple_string(receiptDate) << ";";
     strStream << id << ";";
     strStream << phone << ";";
-    strStream << to_simple_string(receiptDate) << ";";
     strStream << to_simple_string(endingDate) << ";";
     strStream << getEndingStatusAsString() << ";";
 
@@ -62,6 +62,9 @@ void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
     endingDate = date;
     endingStatus = status;
+
+    if (responseDate.is_not_a_date_time()) return;
+    duration = endingDate - responseDate;
 }
 
 IdType CallDetail::getId() const
