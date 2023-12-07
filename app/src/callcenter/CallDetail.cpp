@@ -1,8 +1,10 @@
+#include "callcenter/CallCenter.h"
+#include "utils/Exceptions.h"
+
 #include <sstream>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "callcenter/CallCenter.h"
 
 IdType CallDetail::nextId = 1;
 
@@ -19,7 +21,7 @@ std::string CallDetail::toString() const
     strStream << to_simple_string(endingDate) << ";";
     strStream << getEndingStatusAsString() << ";";
 
-    if (endingStatus == CallEndingStatus::OK)
+    if (!responseDate.is_not_a_date_time())
     {
         strStream << to_simple_string(responseDate) << ";";
         strStream << operatorId << ";";
@@ -46,20 +48,22 @@ std::string CallDetail::getEndingStatusAsString() const
     }
 }
 
-void CallDetail::recordReceiption(Date date)
+void CallDetail::recordReceiption(IdType callId, Date date)
 {
-    id = nextId++;
+    id = callId;
     receiptDate = date;
 }
 
 void CallDetail::recordResponse(IdType acceptedOperatotId, Date date)
 {
+    if (id == 0) throw CCenter::WrongRocordingOrder("Not allowed to record responce befor receiption");
     responseDate = date;
     operatorId = acceptedOperatotId;
 }
 
 void CallDetail::recordEnding(CallEndingStatus status, Date date)
 {
+    if (id == 0) throw CCenter::WrongRocordingOrder("Not allowed to record ending befor receiption");
     endingDate = date;
     endingStatus = status;
 

@@ -28,13 +28,13 @@ public:
 
 public:
 
-    void run();
+    void run(std::shared_ptr<UserSimulation> userSimulation = nullptr);
 
     void registerCall(IdType& callId, const std::string& phone, Date date);
     void responseCall(IdType callId, IdType operatorId, Date date);
     void endCall(IdType callId, CallEndingStatus callEndingStatus, Date date);
 
-    void connectOperator();
+    IdType applyConnection(std::shared_ptr<Operator> mobileOperator);
 
 private:
 
@@ -47,13 +47,14 @@ private:
 
 private:
 
+    IdType freeCallId;
     size_t queueSize;
     std::deque<IdType> awaitingCalls;
     std::map<IdType, CallDetail> calls;
 
     IdType freeOperatorId;
     std::deque<IdType> availableOperators;
-    std::map<IdType, Operator> operators;
+    std::map<IdType, std::shared_ptr<Operator>> operators;
 
     std::mutex callCenterMutex;
 

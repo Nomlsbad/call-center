@@ -16,7 +16,8 @@ public:
     void update(const std::string& path, bool checkOnlyPath = false);
     void readFromFile(const std::string& path) override;
 
-    basic_json operator[] (const std::string& param);
+    basic_json& operator[] (const std::string& param);
+    basic_json operator[] (const std::string& param) const;
 
 protected:
 

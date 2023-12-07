@@ -15,7 +15,7 @@ public:
     }
 
     template <std::derived_from<JsonConfig> Config>
-    static basic_json get(const std::string& param)
+    static basic_json& get(const std::string& param)
     {
         static Config config;
         config.update(configPath, true);

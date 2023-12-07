@@ -5,10 +5,15 @@ Operator::Operator()
 {
 }
 
-void Operator::connect(std::weak_ptr<CallCenter> center, IdType operatorId)
+void Operator::connect(const std::weak_ptr<CallCenter>& center)
 {
-    callCenter = std::move(center);
-    id = operatorId;
+    const auto sharedCenter = center.lock();
+    if (!sharedCenter) return;
+
+    id = sharedCenter->applyConnection(shared_from_this());
+    if (id == 0) return;
+
+    callCenter = center;
     LOG4CPLUS_INFO(operatorLogger, "Operator: operator[" << id << "]: connected to call center");
 }
 
@@ -17,16 +22,45 @@ void Operator::acceptCall(IdType callId)
     const std::shared_ptr<CallCenter> center = callCenter.lock();
     if (!center)
     {
-        LOG4CPLUS_WARN(operatorLogger,
-                       "Operator: operator[" << id << "] doesn't connect to call center");
+        LOG4CPLUS_WARN(operatorLogger, "Operator: operator[" << id << "] doesn't connect to call center");
         return;
     }
 
-    center->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
+    try
+    {
+        center->responseCall(callId, id, boost::posix_time::microsec_clock::local_time());
+        acceptedCallId = callId;
+        isBusy = true;
+    }
+    catch (const std::out_of_range& e)
+    {
+        LOG4CPLUS_WARN(operatorLogger, "Operator: Call[" << callId << "] has already droped");
+    }
+
     LOG4CPLUS_INFO(operatorLogger, "Operator: operator[" << id << "] accepted the call[" << callId << "]");
+}
+
+void Operator::onEndCall()
+{
+    isBusy = false;
 }
 
 IdType Operator::getId() const
 {
     return id;
+}
+
+bool Operator::isConnected() const
+{
+    return !callCenter.expired();
+}
+
+bool Operator::wasBusy() const
+{
+    return isBusy;
+}
+
+IdType Operator::getLastCallId() const
+{
+    return acceptedCallId;
 }

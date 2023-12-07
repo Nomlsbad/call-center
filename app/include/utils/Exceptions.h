@@ -32,9 +32,11 @@ private:
     std::string reason = "";
 };
 
+DECLARE_EXCEPTION(WrongRocordingOrder, Exception);
 DECLARE_EXCEPTION(AlreadyInQueue, Exception);
 DECLARE_EXCEPTION(Overload, Exception);
 DECLARE_EXCEPTION(UnkownConfiguration, Exception);
+DECLARE_EXCEPTION(DoubleResponse, Exception);
 
 } // namespace ccenter
 

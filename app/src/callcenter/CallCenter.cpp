@@ -1,19 +1,20 @@
 #include "callcenter/CallCenter.h"
+#include "callcenter/UserSimulation.h"
 #include "config/Configuration.h"
 #include "utils/Exceptions.h"
-#include "callcenter/UserSimulation.h"
 
 CallCenter::CallCenter()
-    : queueSize(Configuration::get<CallCenterConfig>("queueSize")),
+    : freeCallId(1),
+      queueSize(Configuration::get<CallCenterConfig>("queueSize")),
       freeOperatorId(1),
       callCenterLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CallHandlingLogger"))),
       CDRLogger(Log::Logger::getInstance(LOG4CPLUS_TEXT("CDRLogger")))
 {
 }
 
-void CallCenter::run()
+void CallCenter::run(std::shared_ptr<UserSimulation> userSimulation)
 {
-    simulation = std::make_shared<UserSimulation>(weak_from_this());
+    simulation = std::move(userSimulation);
     std::weak_ptr weakCenter = shared_from_this();
 
     std::thread queueObserver(
@@ -32,7 +33,8 @@ void CallCenter::run()
 void CallCenter::registerCall(IdType& callId, const std::string& phone, Date date)
 {
     CallDetail callDetail(phone);
-    callDetail.recordReceiption(date);
+    callId = std::max<IdType>(1, freeCallId++);
+    callDetail.recordReceiption(callId, date);
     std::lock_guard callCenterLock(callCenterMutex);
 
     if (isQueueFull())
@@ -52,12 +54,12 @@ void CallCenter::registerCall(IdType& callId, const std::string& phone, Date dat
 
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: new call was accepted for registration");
 
-    callDetail.recordReceiption(date);
     callId = callDetail.getId();
     awaitingCalls.push_back(callId);
     calls.emplace(callId, std::move(callDetail));
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was added to queue");
 
+    if (!simulation) return;
     simulation->onRegisterCall(callId, phone);
 }
 
@@ -68,8 +70,10 @@ void CallCenter::responseCall(IdType callId, IdType operatorId, Date date)
     std::lock_guard callCenterLock(callCenterMutex);
 
     CallDetail& callDetail = calls.at(callId);
+    if (callDetail.getOperatorId() != 0) throw CCenter::DoubleResponse("Double response");
     callDetail.recordResponse(operatorId, date);
 
+    if (!simulation) return;
     simulation->onResponse(callId);
 }
 
@@ -82,10 +86,19 @@ void CallCenter::endCall(IdType callId, CallEndingStatus callEndingStatus, Date 
     callDetail.recordEnding(callEndingStatus, date);
     makeCallDetailRecord(callDetail);
 
-    availableOperators.push_back(callDetail.getOperatorId());
+    const IdType operatorId = callDetail.getOperatorId();
+    if (operatorId != 0)
+    {
+        const auto& mobileOperator = operators.at(operatorId);
+        mobileOperator->onEndCall();
+
+        availableOperators.push_back(operatorId);
+    }
+
     calls.erase(callId);
     LOG4CPLUS_INFO(callCenterLogger, "Call Center: Call[" << callId << "]: call was ended");
 
+    if (!simulation) return;
     simulation->onEndCall(callId);
 }
 
@@ -101,23 +114,24 @@ void CallCenter::tryToAcceptCall()
     availableOperators.pop_front();
     awaitingCalls.pop_front();
 
-    Operator& availableOperator = operators.at(operatorId);
+    const auto& availableOperator = operators.at(operatorId);
     callCenterLock.unlock();
 
-    availableOperator.acceptCall(callId);
+    availableOperator->acceptCall(callId);
 }
 
-void CallCenter::connectOperator()
+IdType CallCenter::applyConnection(std::shared_ptr<Operator> mobileOperator)
 {
-    Operator newOperator;
-    const IdType operatorId = freeOperatorId++;
-
-    newOperator.connect(weak_from_this(), operatorId);
-    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
+    if (!mobileOperator) return 0;
+    const IdType operatorId = std::max<IdType>(1, freeOperatorId++);
 
     std::lock_guard lock(callCenterMutex);
-    operators.emplace(operatorId, std::move(newOperator));
+
+    operators[operatorId] = std::move(mobileOperator);
     availableOperators.push_back(operatorId);
+
+    LOG4CPLUS_INFO(callCenterLogger, "Call Center: Operator[" << operatorId << "]: connected");
+    return operatorId;
 }
 
 void CallCenter::makeCallDetailRecord(const CallDetail& callDetail) const

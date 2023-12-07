@@ -1,6 +1,4 @@
-add_executable(${TEST_NAME}
-        CallDetailRecordTest.cpp
-)
+add_executable(${TEST_NAME} ${TEST_SOURCES})
 
 target_include_directories(${TEST_NAME}
         PUBLIC
@@ -8,10 +6,18 @@ target_include_directories(${TEST_NAME}
 )
 
 target_link_libraries(${TEST_NAME}
+        PRIVATE
         GTest::gtest
         GTest::gtest_main
+        log4cplus::log4cplus
+        nlohmann_json::nlohmann_json
         ${APP_NAME}
 )
 
 include(GoogleTest)
 gtest_discover_tests(${TEST_NAME})
+
+add_test(NAME ${TEST_NAME}
+        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND ${TEST_NAME}
+)

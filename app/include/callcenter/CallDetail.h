@@ -18,7 +18,7 @@ public:
 
     explicit CallDetail(std::string phone);
 
-    void recordReceiption(Date date);
+    void recordReceiption(IdType callId, Date date);
     void recordResponse(IdType acceptedOperatotId, Date date);
     void recordEnding(CallEndingStatus status, Date date);
 

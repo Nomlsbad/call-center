@@ -6,6 +6,7 @@
 #include "server/Listener.h"
 
 #include <boost/asio/signal_set.hpp>
+#include <callcenter/UserSimulation.h>
 #include <log4cplus/loggingmacros.h>
 
 Server::Server()
@@ -29,9 +30,11 @@ void Server::run()
     const size_t operators = Configuration::get<CallCenterConfig>("operators");
     for (size_t i = 0; i < operators; ++i)
     {
-        callCenter->connectOperator();
+        const auto mobileOperator = std::make_shared<Operator>();
+        mobileOperator->connect(callCenter);
     }
-    callCenter->run();
+
+    callCenter->run(std::make_shared<UserSimulation>(callCenter));
 
     listener->run();
 
