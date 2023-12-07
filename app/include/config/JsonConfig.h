@@ -1,7 +1,7 @@
 #ifndef JSONCONFIG_H
 #define JSONCONFIG_H
 
-#include "Types.h"
+#include "utils/Types.h"
 #include "config/IConfig.h"
 
 #include <nlohmann/json.hpp>

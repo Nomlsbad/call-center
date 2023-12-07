@@ -1,9 +1,9 @@
 #include "controller/UserController.h"
-#include "CallCenter.h"
+#include "callcenter/CallCenter.h"
+#include "utils/Exceptions.h"
 
 #include <log4cplus/loggingmacros.h>
 #include <nlohmann/json.hpp>
-#include <utils/Exceptions.h>
 
 UserController::UserController(std::weak_ptr<CallCenter> callCenter)
     : callCenter(std::move(callCenter)),

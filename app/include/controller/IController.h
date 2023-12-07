@@ -1,7 +1,7 @@
 #ifndef ICONTROLLER_H
 #define ICONTROLLER_H
 
-#include "Types.h"
+#include "utils/Types.h"
 
 class IController
 {

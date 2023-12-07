@@ -2,7 +2,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "CallDetail.h"
+#include "callcenter/CallCenter.h"
 
 IdType CallDetail::nextId = 1;
 

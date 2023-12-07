@@ -1,7 +1,7 @@
 #ifndef HTTPSESSION_H
 #define HTTPSESSION_H
 
-#include "Types.h"
+#include "utils/Types.h"
 
 #include <deque>
 #include <memory>
